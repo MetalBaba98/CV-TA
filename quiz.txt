@@ -1,0 +1,537 @@
+Foundations of Computer Vision
+Multiple Choice Quiz – 20 Questions
+Source: Lecture slides from May 9, 13, 16, and 20
+Instructions: Each question may have one or more correct answers. Select all that apply.
+Question Reference Index
+Q#	Topic	Correct Answers	Source
+1	Homography recipe	A, C, E	May 13 – Slide 7
+2	Solving for H via SVD	A, C, E	May 13 – Slide 12
+3	Three pillars of CV	A, B, C, E	May 9 – Slides 4–6
+4	Pinhole camera model	A, B, D	May 13 – Slides 21–22
+5	Homogeneous coordinates	A, C, D, E	May 13 – Slides 25–26
+6	Projective invariants	A, C, E	May 16 – Slides 17–23; May 20 – Slides 17–23
+7	Transformation hierarchy	A, B, D, E	May 20 – Slides 20–23
+8	P² algebra	A, C, D, E	May 16 – Slides 31–34; May 20 – Slides 7–10
+9	Parallel lines in P²	A, B, C, E	May 16 – Slides 37–38; May 20 – Slides 13–14
+10	Cross ratio	A, B, D, E	May 20 – Slides 29–30
+11	Planar homography derivation	A, B, D, E	May 16 – Slides 17–20
+12	Practical homography notes	A, B, D, E	May 16 – Slide 21
+13	Similarity transform	A, B, D, E	May 20 – Slide 21
+14	Vanishing points	A, B, D, E	May 16 – Slides 28–29; May 20 – Slide 5
+15	3D coordinate transformation	A, B, C, E	May 16 – Slide 15
+16	Scope of CV	A, B, D, E	May 9 – Slides 7–9
+17	Two-view plane geometry	A, C, D, E	May 13 – Slides 3–5; May 16 – Slides 16–20
+18	Projectivity definition	A, B, D, E	May 20 – Slides 17–19
+19	P¹ projective line	A, B, C, E	May 20 – Slides 26–28
+20	Scan app observations	A, B, D	May 13 – Slides 16–17
+Questions
+Q1. Which of the following correctly describe the 'recipe' for the scan/homography application?  [May 13 – Slide 7]
+A.  Discover a 3×3 matrix H
+B.  Discover a 4×4 matrix H
+C.  Upgrade pixel p′ to homogeneous form u′₃₁
+D.  Set (x,y) = (u₁/u₂, u₃/u₂)
+E.  Set Image[x,y] = Image[x′,y′]
+Answer: A, C, E
+Explanation: The recipe: find a 3×3 H, upgrade p′ to u′₃₁, compute u = Hu′, extract (x,y) = (u₁/u₃, u₂/u₃), then copy pixel values.
+Q2. To find H, the homography matrix, which steps are correct?  [May 13 – Slide 12]
+A.  H appears as a solution to Ah = 0
+B.  H appears as a solution to Ah = 1
+C.  We perform SVD of A = UDVᵀ
+D.  We focus on U; its last columns span the null space
+E.  A will have a null space of dimension 1
+Answer: A, C, E
+Explanation: H solves Ah=0. SVD of A = UDVᵀ is used; we focus on V (not U), and the null space of A has dimension 1.
+Q3. Which of the following are valid definitions or goals of computer vision according to the course?  [May 9 – Slides 4–6]
+A.  Endowing a computer with the ability to recognise objects
+B.  Recovery of 3D geometry from images
+C.  Reorganisation of visual elements to determine meaning
+D.  Replacing all deep learning with classical methods
+E.  Correspondence and reconstruction
+Answer: A, B, C, E
+Explanation: The three pillars are Recognition, Recovery (correspondence + reconstruction), and Reorganisation. The course does not claim to replace deep learning.
+Q4. Which statements about the pinhole camera model are correct?  [May 13 – Slides 21–22]
+A.  A camera with a lens simulates the mathematical pinhole camera
+B.  A barrier with a pinhole blocks most light rays
+C.  The pinhole model always produces an inverted image in the physical setup
+D.  The mathematical model uses a centre of projection and focal length f
+E.  The image plane is placed behind the object in the mathematical model
+Answer: A, B, D
+Explanation: Lens cameras simulate the pinhole; the barrier blocks most rays; the mathematical model uses COP and focal length f. The non-inverted image model places the image plane in front.
+Q5. For homogeneous coordinates in the context of image formation, which are true?  [May 13 – Slides 25–26]
+A.  The relation between (x,y) and (X,Y,Z) can be linearised using homogeneous coordinates
+B.  x ~ P₃₄ X_cam is a real equality
+C.  x = P₃₄ X_cam holds after dehomogenisation
+D.  Homogeneous coordinates add an extra coordinate to represent projective points
+E.  The 3D point (X,Y,Z) maps to image point (fX/Z, fY/Z)
+Answer: A, C, D, E
+Explanation: The tilde notation (~) denotes equality up to scale, not a real equality. All other statements are correct per the slides.
+Q6. Which properties are preserved (invariant) under a projective transformation?  [May 16 – Slides 17–23; May 20 – Slides 17–23]
+A.  Collinearity of points
+B.  Parallelism of lines
+C.  Cross ratio
+D.  Angles between lines
+E.  Incidence (a point lying on a line)
+Answer: A, C, E
+Explanation: Projectivity preserves collinearity and incidence. Parallelism is preserved only under affine transforms. Angles under similarities. Cross ratio is the key projective invariant.
+Q7. Regarding the hierarchy of 2D transformations, which statements are correct?  [May 20 – Slides 20–23]
+A.  A similarity transform preserves circles and squares
+B.  An affine transform keeps parallel lines parallel
+C.  A projective transform keeps parallel lines parallel
+D.  The affine matrix has last row [0,0,1]
+E.  A projective matrix has 8 degrees of freedom
+Answer: A, B, D, E
+Explanation: Projective transforms do NOT preserve parallelism — that is an affine invariant. All other statements match the slides.
+Q8. In projective geometry (P²), which of the following are correct?  [May 16 – Slides 31–34; May 20 – Slides 7–10]
+A.  A point is represented as an equivalence class of non-zero triplets
+B.  (0,0,0)ᵀ is a valid projective point
+C.  A line ax+by+c=0 is represented by the triplet [a,b,c]ᵀ
+D.  The triplet [kx, ky, kz] represents the same point as [x,y,z]
+E.  A Cartesian point (x,y) corresponds to projective point [x,y,1]ᵀ
+Answer: A, C, D, E
+Explanation: (0,0,0)ᵀ is explicitly not allowed. All other statements are correct.
+Q9. Which of the following are true about parallel lines in P²?  [May 16 – Slides 37–38; May 20 – Slides 13–14]
+A.  They intersect at ideal points (last coordinate = 0)
+B.  Two ideal points define an ideal line
+C.  Their intersection is the cross product of their line triplets
+D.  They have no intersection in P²
+E.  The line at infinity is composed of all ideal points
+Answer: A, B, C, E
+Explanation: In P², parallel lines do intersect — at ideal points. Their intersection is the cross product of their triplets. Two ideal points form the ideal/line at infinity.
+Q10. The cross ratio in P¹ has which of the following properties?  [May 20 – Slides 29–30]
+A.  It is defined for four points
+B.  It is invariant under projective transformations
+C.  Its value changes if one point is ideal
+D.  It does not depend on the homogeneous scale factor
+E.  It is the key invariant of projective transforms in P²
+Answer: A, B, D, E
+Explanation: The cross ratio is defined for 4 points, is projectively invariant, scale-independent, and remains valid even when one point is ideal.
+Q11. Which of the following correctly describe the planar homography derivation?  [May 16 – Slides 17–20]
+A.  The plane equation is aX + bY + cZ + 1 = 0
+B.  M₁,₂ is a 4×4 matrix aligning coordinate systems of two cameras
+C.  The final homography H is a 4×4 matrix
+D.  H is non-singular and known only up to scale
+E.  x₂ = O₃₄ M₁,₂ N⁴³ x₁ = H₃₃ x₁
+Answer: A, B, D, E
+Explanation: H is a 3×3 matrix, not 4×4. All other statements are correct per the derivation.
+Q12. Which are practical notes the slides give about computing homographies from point correspondences?  [May 16 – Slide 21]
+A.  Correspondences in practice will not be perfect
+B.  Many pairs of points should be collected
+C.  Exactly 4 points always suffice regardless of configuration
+D.  If 4 points are used, no three should be collinear
+E.  Normalisation is very important
+Answer: A, B, D, E
+Explanation: Collinear configurations are degenerate. The slides say we collect many pairs, normalise, and ensure no three of the 4 points are collinear.
+Q13. Which properties hold for the similarity transformation matrix?  [May 20 – Slide 21]
+A.  It has 4 degrees of freedom
+B.  It contains a 2×2 rotation-like matrix R
+C.  The determinant of R is always +1
+D.  It includes a scale parameter s
+E.  It has last row [0ᵀ, 1]
+Answer: A, B, D, E
+Explanation: The determinant of R can be ±1 (the slides say 'can have a sign term'). The matrix has 4 DOF, contains sR and t, with bottom row [0ᵀ 1].
+Q14. Which statements about vanishing points are correct?  [May 16 – Slides 28–29; May 20 – Slide 5]
+A.  Parallel lines in the world share a vanishing point in the image
+B.  A vanishing point arises from the intersection of projected parallel lines
+C.  Vertical parallel lines always produce a vanishing point on the horizon
+D.  Two planes (each through a line and the eye) intersect to produce the vanishing point
+E.  A vanishing line is formed from two vanishing points
+Answer: A, B, D, E
+Explanation: Vertical parallel lines produce a vanishing point at infinity, not on the horizon. All other statements are correct.
+Q15. In the 3D coordinate transformation between two camera frames, which are correct?  [May 16 – Slide 15]
+A.  The two frames are related by a 3D translation T and rotation R
+B.  P₂ = R(P₁ − T)
+C.  Using homogeneous coordinates the relationship is linearised to P₂ = MP₁
+D.  M is a 3×3 matrix
+E.  R is an orthonormal matrix
+Answer: A, B, C, E
+Explanation: M is a 4×4 matrix (homogeneous 3D), not 3×3. All other statements are correct.
+Q16. Which are correct statements about the scope and relationships of computer vision?  [May 9 – Slides 7–9]
+A.  Computer vision sits between image processing and 3D description/understanding
+B.  Graphics goes from 3D descriptions to 2D images
+C.  Image processing goes from 2D images to 3D description
+D.  Deep learning has solved many recognition tasks but its relationship to 'core CV' is debated
+E.  The course focuses on geometric properties using one or more cameras
+Answer: A, B, D, E
+Explanation: Image processing works on 2D images; it does not produce 3D descriptions — that is the domain of vision.
+Q17. Regarding the relationship between two views of a plane, which are true?  [May 13 – Slides 3–5; May 16 – Slides 16–20]
+A.  A 3×3 matrix H (homography) relates corresponding pixels
+B.  The second view must be orthographic to preserve information
+C.  The key concept illustrated by the Cheerios box scan is homography
+D.  Two views are related via the projections through the 3D plane
+E.  The relationship between views is linear in homogeneous coordinates
+Answer: A, C, D, E
+Explanation: The second view does not need to be orthographic; the homography handles any planar relationship.
+Q18. Which of the following are true about a projectivity (homography) from P² to P²?  [May 20 – Slides 17–19]
+A.  It is defined by a non-singular matrix H
+B.  It maps lines to lines
+C.  It maps circles to circles
+D.  It has 8 degrees of freedom
+E.  Any transform that preserves lines is a projectivity
+Answer: A, B, D, E
+Explanation: Projectivities do not generally map circles to circles — that is a property of similarity transforms. All other statements are correct.
+Q19. In P¹ (the projective line), which are correct?  [May 20 – Slides 26–28]
+A.  A point is a pair [x₁, x₂]ᵀ
+B.  If x₂ = 0 the point is ideal
+C.  A projective transform in P¹ is represented by a 2×2 matrix H
+D.  The P¹ transform has 4 degrees of freedom
+E.  The matrix H in P¹ is homogeneous, so only 3 DOF are independent
+Answer: A, B, C, E
+Explanation: A 2×2 homogeneous matrix has 4 entries but only 3 independent DOF (known up to scale).
+Q20. Which observations about the scan-app results are noted in the lectures?  [May 13 – Slides 16–17]
+A.  The photos are taken casually, not in a lab
+B.  Output images are produced quickly, indicating computational efficiency
+C.  The resulting images are similar to Snapchat-style 2D filters
+D.  The manipulations seem to preserve the 3D appearance
+E.  The recipe shown is complete and production-ready
+Answer: A, B, D
+Explanation: The slides explicitly say the results are NOT like Snapchat filters and DO preserve 3D appearance. The recipe is also noted as elegant but incomplete for production use.
+
+Computer Vision — MCQ Bank
+20 Multiple Choice / Multiple Answer Questions
+Source material: Course lecture slides (may23A.pdf, may23B.pdf, may27.pdf, may30.pdf, may30_continued.pdf). Each question may have more than one correct answer.
+
+Q1. Which of the following correctly describe the supervised learning (image classification) setup? (Select all that apply)
+☐	A. The learner takes input-output training pairs and produces a function f: X → Y
+☐	B. The goal is to minimize a loss function over the training dataset
+☐	C. Labels must always be represented as integers
+☐	D. Class labels can be represented as one-hot vectors
+☐	E. Inference requires re-training on every new test example
+✓ Correct Answers: A, B, D
+📎 Reference: may23B.pdf – Slides 7–8, 15 (Learning from examples / How to represent class labels)
+
+Q2. What are the key ingredients inside a 'Learner' according to the course slides? (Select all that apply)
+☐	A. Objective
+☐	B. Hypothesis space
+☐	C. Optimizer
+☐	D. Memory bank
+☐	E. Compute
+✓ Correct Answers: A, B, C, E
+📎 Reference: may23B.pdf – Slide 10 (Key Ingredients)
+
+Q3. Which of the following are stated advantages of Artificial Neural Networks (ANNs)? (Select all that apply)
+☐	A. They are universal approximators
+☐	B. They can be trained with stochastic gradient descent
+☐	C. They run efficiently on parallel hardware
+☐	D. They always require fewer data than linear models
+☐	E. They build useful abstractions
+✓ Correct Answers: A, B, C, E
+📎 Reference: may23B.pdf – Slide 13 / may27.pdf – Slide 2 (Artificial Neural Nets)
+
+Q4. Which statements about the 0-1 loss function are correct? (Select all that apply)
+☐	A. It counts the number of misclassifications
+☐	B. It is discrete
+☐	C. It is NP-hard to optimize directly
+☐	D. It is the standard loss used in deep learning training
+☐	E. It is defined as L(ŷ, y) = 1(ŷ = y)
+✓ Correct Answers: A, B, C, E
+📎 Reference: may27.pdf – Slides 9–10 / may23B.pdf – Slide 18 (What should the loss be?)
+
+Q5. The cross-entropy loss L(ŷ, y) = H(y, ŷ) = −∑ y_k log ŷ_k has which of the following properties? (Select all that apply)
+☐	A. It is continuous
+☐	B. It is differentiable
+☐	C. It is convex
+☐	D. It requires integer class labels
+☐	E. It assumes ŷ_k are predicted probabilities
+✓ Correct Answers: A, B, C, E
+📎 Reference: may23B.pdf – Slide 18 / may27.pdf – Slide 10 (Cross entropy loss)
+
+Q6. Which of the following are true about the sigmoid function sig[z] = 1 / (1 + exp[−z])? (Select all that apply)
+☐	A. It maps any real-valued input to the interval [0, 1]
+☐	B. It is used for binary classification to constrain the parameter λ ∈ [0, 1]
+☐	C. It maps inputs to a probability distribution that sums to K
+☐	D. It is the logistic sigmoid function
+☐	E. For binary classification, the model outputs only one score
+✓ Correct Answers: A, B, D, E
+📎 Reference: may27.pdf – Slides 19–20 / may30.pdf (Slides 3–4) (sigmoid)
+
+Q7. Which of the following are true about the softmax function for multiclass classification? (Select all that apply)
+☐	A. softmax_k[z] = exp[z_k] / ∑ exp[z_k']
+☐	B. Its outputs are in [0, 1] and sum to one
+☐	C. Pr(y = k | x) = softmax_k[f[x, φ]]
+☐	D. It uses K output scores for K classes
+☐	E. It is used for binary classification only
+✓ Correct Answers: A, B, C, D
+📎 Reference: may27.pdf – Slide 47 / may30.pdf (Slide 7) (multiclass classification + softmax)
+
+Q8. Which of the following correctly describe the binary cross-entropy loss? (Select all that apply)
+☐	A. It is derived from the Bernoulli distribution
+☐	B. L[φ] = ∑ −(1−y_i) log[1 − sig[f[x_i, φ]]] − y_i log[sig[f[x_i, φ]]]
+☐	C. It requires K output nodes for binary classification
+☐	D. It is a special case of maximum likelihood estimation
+☐	E. The domain of y is {0, 1}
+✓ Correct Answers: A, B, D, E
+📎 Reference: may27.pdf – Slides 38–43 / may30.pdf (Slides 19–20) (Binary classification + BCE loss)
+
+Q9. Which statements about KL Divergence are correct? (Select all that apply)
+☐	A. It measures the difference between two probability distributions
+☐	B. It is always non-negative (≥ 0)
+☐	C. Minimizing cross entropy is equivalent to minimizing KL divergence
+☐	D. KL divergence is symmetric: KL(p||q) = KL(q||p)
+☐	E. Cross entropy equals the true entropy plus the KL divergence
+✓ Correct Answers: A, B, C, E
+📎 Reference: may27.pdf – Slides 24–26 (KL Divergence)
+
+Q10. Which of the following are true about a shallow neural network? (Select all that apply)
+☐	A. It has exactly one hidden layer
+☐	B. Hidden units apply an activation function to a linear combination of inputs
+☐	C. It can only solve linearly separable problems
+☐	D. The number of hidden units is related to model capacity
+☐	E. It computes y = φ_0 + φ_1 h_1 + φ_2 h_2 + ... for its output
+✓ Correct Answers: A, B, D, E
+📎 Reference: may30.pdf (Slides 12–17) (Shallow Neural Network)
+
+Q11. Which of the following are correct about the Rectified Linear Unit (ReLU) activation function? (Select all that apply)
+☐	A. It is a type of activation function
+☐	B. Values after ReLU are called activations
+☐	C. Values before ReLU are called pre-activations
+☐	D. ReLU outputs are always in [0, 1]
+☐	E. It introduces non-linearity into the network
+✓ Correct Answers: A, B, C, E
+📎 Reference: may30.pdf (Slides 14–15) (Rectified Linear Unit)
+
+Q12. Which of the following are true about the Multilayer Perceptron (MLP)? (Select all that apply)
+☐	A. It is a universal approximator
+☐	B. It uses dense (fully-connected) linear layers
+☐	C. It has weak inductive biases
+☐	D. It is sample efficient and requires little data
+☐	E. It is embarrassingly parallel
+✓ Correct Answers: A, B, C, E
+📎 Reference: may30.pdf (Slide 43) (Multilayer Perceptron)
+
+Q13. Which of the following correctly describe activations vs. parameters in a neural network? (Select all that apply)
+☐	A. Activations are all values the nodes take on
+☐	B. Parameters include the weights and biases
+☐	C. Typically parameters are optimized to fit the data
+☐	D. Activations can also be optimized toward some objective
+☐	E. Activations and parameters are the same thing
+✓ Correct Answers: A, B, C, D
+📎 Reference: may30.pdf (Slide 41) (Activations vs Parameters)
+
+Q14. Which of the following are true about the general deep neural network equations? (Select all that apply)
+☐	A. z = W_1 x + b_1 for the first layer
+☐	B. h = g(z) where g is the activation function
+☐	C. A weight matrix multiplies its source and adds to its target
+☐	D. The bias term is always zero in deep networks
+☐	E. Multiple layers can be composed to form a deep network
+✓ Correct Answers: A, B, C, E
+📎 Reference: may30.pdf (Slides 28–36) (Notation changes / General equations for deep network)
+
+Q15. Which of the following correctly describe the recipe for constructing loss functions as described in the slides? (Select all that apply)
+☐	A. Choose a probability distribution Pr(y|θ) defined over the prediction domain
+☐	B. Set f[x, φ] to predict the distribution parameters
+☐	C. Train by minimizing the negative log-likelihood
+☐	D. Inference returns either the full distribution or its mode
+☐	E. Always use mean squared error regardless of the output domain
+✓ Correct Answers: A, B, C, D
+📎 Reference: may23B.pdf – Slide 17 (Recipe for loss functions)
+
+Q16. Which of the following are true about the ImageNet database discussed in the course? (Select all that apply)
+☐	A. Images are 224 × 224 pixels
+☐	B. It contains 1000 classes
+☐	C. It has approximately 1.28 million training images
+☐	D. It contains 50,000 validation images
+☐	E. It was created specifically for object detection tasks
+✓ Correct Answers: A, B, C, D
+📎 Reference: may23B.pdf – Slide 2 (ImageNet Database)
+
+Q17. A perceptron (one-layer neural network) performing linear classification has which of the following properties? (Select all that apply)
+☐	A. It computes z = x^T w + b
+☐	B. It applies a nonlinear activation to produce y = g(z)
+☐	C. It can perfectly classify all non-linearly separable datasets
+☐	D. It can perform linear classification in 2D input space
+☐	E. Its decision boundary is a hyperplane
+✓ Correct Answers: A, B, D, E
+📎 Reference: may30.pdf (Slides 38–39) (Linear classification with a perceptron)
+
+Q18. Which of the following are true about the Cross Ratio in projective geometry? (Select all that apply)
+☐	A. It is defined for four collinear points
+☐	B. It is invariant under any projective transformation
+☐	C. It can be used even when one point is at infinity
+☐	D. It depends on the homogeneous constant
+☐	E. It can be used to recover real-world distances from image measurements
+✓ Correct Answers: A, B, C, E
+📎 Reference: may23A.pdf – Slides 7, 9–12 (Cross Ratio + Surveillance camera)
+
+Q19. In the maximum likelihood estimation (MLE) framework applied to neural networks, which of the following are correct? (Select all that apply)
+☐	A. MLE maximizes ∑ log Pr(y_i | f[x_i, φ])
+☐	B. Minimizing negative log-likelihood is equivalent to MLE
+☐	C. The log function is used because products of small probabilities can underflow
+☐	D. The log function is monotonic so it preserves the location of the maximum
+☐	E. MLE always requires a uniform prior on the parameters
+✓ Correct Answers: A, B, C, D
+📎 Reference: may27.pdf – Slides 30–35 (Maximum likelihood criterion / Maximum log likelihood)
+
+Q20. When processing a mini-batch of N inputs through a two-layer neural network, which of the following are true? (Select all that apply)
+☐	A. The input X is a tensor of shape (N_batch, input_dim)
+☐	B. Tensor operations allow parallel computation across batch elements
+☐	C. The weight matrix W_1 is shared across all examples in the batch
+☐	D. Each example in the batch has its own separate weight matrix
+☐	E. The output Y has one row per example in the batch
+✓ Correct Answers: A, B, C, E
+📎 Reference: may30.pdf (Slide 42) (Tensor data structure / batch processing)
+
+
+Computer Vision — Multiple Choice Quiz
+Instructions: Each question may have more than one correct answer. Select all that apply.
+
+Q1. Which of the following correctly describes the camera matrix P?
+    A) P is a 3×4 homogeneous matrix
+    B) P = K[R | t] where K is the intrinsic matrix
+    C) P = K[R | t] where t = −RĈ
+    D) The null space of P corresponds to the principal point
+    E) P is valid only up to a scalar constant
+Correct answers: A, B, C, E
+Reference: Jun 03 slides: Camera Matrix Components (slides 17–18); Jun 06 slides: Recap (slide 2)
+Q2. Which of the following are correct components of the camera intrinsic matrix K?
+    A) Focal lengths α_x and α_y
+    B) Principal point offsets p_x and p_y
+    C) A skew parameter s between the two sensor axes
+    D) The rotation matrix R
+    E) K is upper triangular
+Correct answers: A, B, C, E
+Reference: Jun 03 slides: Camera Matrix Components (slide 17); Jun 06 slides: Camera Matrix Components (slide 8)
+Q3. In the pinhole camera model, which of the following correctly describes the four coordinate systems involved?
+    A) World coordinate system
+    B) Camera coordinate system
+    C) Image (planar) coordinate system
+    D) Polar coordinate system
+    E) Sensor coordinate system
+Correct answers: A, B, C, E
+Reference: Jun 03 slides: World to Sensor (slide 7); Jun 06 slides: World to Sensor (slide 3)
+Q4. Regarding the Weak Perspective Camera model, which of the following statements are correct?
+    A) It is used when depth variation is negligible compared to average scene depth
+    B) x ≈ f·X/Z and y ≈ f·Y/Z under weak perspective
+    C) It is identical to the full perspective model
+    D) It approximates by treating Z+δ ≈ Z for small δ
+    E) It is never used in the literature
+Correct answers: A, B, D
+Reference: Jun 10 slides: Aside: Weak Perspective Camera (slide 2)
+Q5. Which of the following are valid reasons for performing camera calibration?
+    A) To reconstruct 3D scene structure from 2D images
+    B) To estimate camera properties such as focal length
+    C) To perform augmented reality applications
+    D) To eliminate the need for any world coordinate system
+    E) To estimate 3D dimensions from 2D images
+Correct answers: A, B, C, E
+Reference: Jun 10 slides: Camera Calibration: Why (slide 6)
+Q6. In the DLT-based camera calibration procedure, which of the following steps are performed?
+    A) Measure 3D world coordinates of junction points on a calibration object
+    B) Capture an image and record pixel coordinates of the same junction points
+    C) Apply SVD to the constructed matrix
+    D) Extract the right singular vector corresponding to the largest singular value
+    E) Reshape and normalize the extracted vector to form the P matrix
+Correct answers: A, B, C, E
+Reference: Jun 10 slides: Camera Calibration How? (slides 12–13, 19–20)
+Q7. Which statements about the null space of the camera matrix P are correct?
+    A) It corresponds to the camera center in world coordinates
+    B) If PC = 0, then C is the camera center
+    C) Any point on the line X(t) = tA + (1−t)C projects to the same image point PA
+    D) The null space corresponds to the principal point of the image
+    E) P is 3×4 so it necessarily has a non-trivial null space
+Correct answers: A, B, C, E
+Reference: Jun 06 slides: Dissecting a Camera Matrix (slides 22–23)
+Q8. Which of the following correctly describe properties of the camera matrix columns?
+    A) The first three column vectors of P correspond to vanishing points of the world axes
+    B) The fourth column of P is the image of the world origin
+    C) The second column corresponds to the vanishing point of the Y-axis (direction [0,1,0,0]^T)
+    D) The columns encode the camera's focal length directly
+    E) P is a square 3×3 matrix
+Correct answers: A, B, C
+Reference: Jun 06 slides: Dissecting a Camera Matrix (slide 25)
+Q9. Regarding planar homography, which of the following are correct?
+    A) A homography is a 3×3 invertible matrix H relating two views of a planar surface
+    B) Points in two views related by a homography must all lie on the same 3D plane
+    C) λ₂[x₂; y₂; 1] = H₂H₁⁻¹ · λ₁[x₁; y₁; 1]
+    D) Homography requires knowledge of scene depth
+    E) Image stitching can exploit planar homography
+Correct answers: A, B, C, E
+Reference: Jun 06 slides: Planar Homography (slides 12–13, 16)
+Q10. Which of the following correctly characterize pure rotation as a homography?
+    A) Under pure rotation, world points need not lie on the same plane
+    B) The camera center does not move during pure rotation
+    C) The resulting homography is H = K₂R₂R₁⁻¹K₁⁻¹
+    D) Pure rotation cannot be represented as a 3×3 matrix
+    E) Image stitching of panoramas exploits pure rotation homography
+Correct answers: A, B, C, E
+Reference: Jun 06 slides: Pure Rotation Is a Homography / Pure Rotation As Homography (slides 19–20)
+Q11. In the simple method to estimate the focal length α_x, which of the following relationships are used?
+    A) α_x = fN/w, where f is focal length, N is horizontal pixel count, w is sensor width
+    B) α_x ≈ ZL/W, where Z is capture distance, L is square width in pixels, W is square width in cm
+    C) If the 35mm equivalent focal length is 26mm, then f = 26/36 × sensor width
+    D) α_x is the rotation angle of the camera
+    E) A physical 36mm camera has sensor size 36×24
+Correct answers: A, B, C, E
+Reference: Jun 10 slides: Simple Method to get K (slides 9)
+Q12. Which of the following are advantages of using a planar checkerboard pattern for camera calibration?
+    A) It is easier to carry than a 3D calibration box
+    B) It can be taped to any planar surface
+    C) It still allows recovery of camera intrinsics
+    D) It also uses the DLT method
+    E) It requires no correspondences between 3D and 2D points
+Correct answers: A, B, C, D
+Reference: Jun 13 (calibration) slides: Camera Calibration With Planar Patterns (slide 5)
+Q13. Regarding radial distortion and lens distortion in camera calibration, which of the following are correct?
+    A) Radial distortion is modeled as x = x_d(1 + k₁r² + k₂r⁴)
+    B) r² = x_d² + y_d²
+    C) Distortion correction is applied after K but before R
+    D) Distortion parameters must be obtained in addition to K, R, T
+    E) The pinhole camera model naturally accounts for radial distortion
+Correct answers: A, B, D
+Reference: Jun 13 (calibration) slides: Updated Problem Definition (slide 7)
+Q14. Which of the following are correct statements about the RQ decomposition used to extract K and R from P?
+    A) QR decomposition factors a matrix as Q (orthogonal) times R (upper triangular)
+    B) RQ decomposition is needed because K is upper triangular and R is orthogonal
+    C) Any real invertible square matrix can be factored via QR decomposition
+    D) RQ and QR decompositions are identical
+    E) The camera intrinsic matrix K corresponds to the upper triangular factor
+Correct answers: A, B, C, E
+Reference: Jun 10 slides: QR Decomposition / RQ for square matrices (slides 23–24)
+Q15. Which of the following correctly describe properties and limitations of the Multilayer Perceptron (MLP)?
+    A) MLPs are universal function approximators
+    B) MLPs have weak inductive biases for image data
+    C) MLPs are sample-efficient due to dense connectivity
+    D) Fully-connected layers are computationally expensive for high-dimensional inputs
+    E) A single hidden layer for a 224×224 RGB image requires approximately 22 billion weights
+Correct answers: A, B, D, E
+Reference: Jun 13 (CNN) slides: Multilayer Perceptron (slide 5); Networks for images (slide 12)
+Q16. Which of the following correctly describe the motivation for using Convolutional Neural Networks (CNNs) over fully-connected networks for images?
+    A) Nearby pixels in images are statistically related
+    B) CNNs should be stable under spatial translations
+    C) CNNs avoid re-learning object appearance at different image locations via parameter sharing
+    D) CNNs always require larger memory than MLPs
+    E) A 224×224 RGB image has 150,528 input dimensions
+Correct answers: A, B, C, E
+Reference: Jun 13 (CNN) slides: Networks for images (slide 12)
+Q17. Which of the following are true about the 1D convolution operation described in the lectures?
+    A) The output z_i is a weighted sum of x_{i-1}, x_i, x_{i+1} for kernel size 3
+    B) The convolutional kernel ω = [ω₁, ω₂, ω₃]^T has kernel size 3
+    C) Convolution is a special case of a fully-connected network with shared and sparse weights
+    D) Each output neuron in a conv layer sees all input neurons
+    E) Convolutional layers process local image patches in parallel with identical parameters
+Correct answers: A, B, C, E
+Reference: Jun 13 (CNN) slides: Convolution in 1D (slide 24); Special case of fully-connected (slide 27)
+Q18. Regarding kernel size, stride, and dilation in convolutions, which of the following are correct?
+    A) Larger kernel size combines information from a larger area
+    B) Stride > 1 decreases the size of the output relative to the input
+    C) Dilated (atrous) convolutions intersperse kernel values with zeros to increase receptive field with fewer parameters
+    D) Zero padding ensures the output size equals the input size for stride 1
+    E) Dilation always increases the number of learnable parameters proportionally
+Correct answers: A, B, C, D
+Reference: Jun 13 (CNN) slides: Kernel size, Stride, and dilation (slide 32); Zero padding / Valid convolutions (slides 30–31)
+Q19. Which of the following are key properties summarized for CNNs in the lecture?
+    A) Equivariance with translation: f(translate(x)) = translate(f(x))
+    B) Patch processing with local receptive fields
+    C) Parameter sharing across image positions
+    D) CNN outputs are always smaller than the input
+    E) Conv layers can be applied to arbitrarily-sized inputs
+Correct answers: A, B, C, E
+Reference: Jun 13 (CNN) slides: CNN Summary (slide 43); final slide 45
+Q20. Which of the following correctly describe the concept of hypothesis space and model selection discussed in the CNN lectures?
+    A) The hypothesis space F represents the set of functions the model can learn
+    B) Adding more data shrinks the region of functions consistent with the data
+    C) A more constrained architecture (smaller F) requires less data to pin down the true solution
+    D) MLPs and CNNs have identical hypothesis spaces for image data
+    E) Truth can be approximated either by adding more data or by using a more constrained architecture
+Correct answers: A, B, C, E
+Reference: Jun 13 (CNN) slides: Why use other architectures? (slides 7–9)
+
