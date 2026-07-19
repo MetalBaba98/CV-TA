@@ -1,0 +1,469 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Task 02 : Single View Geometry and Distance Estimation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Overview}
+
+In this task, you will estimate real-world distances using a single
+image by -- well -- applying what you learnt in class. The task
+focuses on  linearity, cross-ratio, and the practical use
+of object localization (using a  deep learning tool) to infer
+distances from a single image. This topic is called single view metrology.
+
+\section{Background}
+
+You are provided with an image (see Fig.~\ref{fig:bicycleBBox}) of
+the way from the main building
+(MB) of IIT Bombay to the arch of knowledge (gyanam-paramam-dhyeyam) (``arch''). (As an aside, the arch encodes the motto of IITB).
+
+Take a moment to digest the provided image. Observe
+\begin{itemize} 
+\item the red line overlaid for reference, 
+\item the cross road (``intersection'') that has the palm tree on one side and a building
+on the other side
+\item a bicycle
+\end{itemize}
+
+Amongst the  objects, look for the street lights  towards the right. We refer to these as 
+``poles'' in this assignment. The poles are numbered starting from the camera to the Arch. We will casually refer to the red line as equivalent to MB.
+We are
+going to assume that the cross road (aka intersection)  is a straight line passing
+through the base of the third pole parallel to the red
+line, and that the mb-to-arch line is perpendicular to
+the intersection line.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\section{Real life distances}
+%%The following real world distances are hypothesized:
+%\begin{itemize}
+%\item Distance from the red line to the arch: \textbf{160 metres}
+%\item Distance from  the red line to the intersection: \textbf{50 metres}
+%\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Who \href{https://en.wikipedia.org/wiki/Who_Moved_My_Cheese\%3F}{moved} my bicycle?}%
+
+\subsection{Task}
+Consider the bicycle in
+Fig.~\ref{fig:bicycleBBox}. Report the real-world distance between the
+bicycle and the arch.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.45\linewidth]{bicycle_bb}
+\caption{A bounding box prediction from YOLOv8.}
+\label{fig:bicycleBBox}
+\end{figure}
+
+Use a pretrained deep learning model to detect the
+bicycle. This is an object detection task. Please refer to tutorial here, and stick to \textbf{YOLO} models: \url{https://docs.ultralytics.com/tasks/detect#models}
+Also look at the COCO dataset \url{https://cocodataset.org/#home} to find out the class identifiers for bicycles and persons.
+%The bounding box from the model will give you the coordinates of the bicycle. 
+
+\begin{studentSpace}
+
+To estimate the real-world distance between the bicycle and the arch, I first identified four collinear points on the blue reference line:
+
+[
+A'=(1183,3494)
+]
+
+[
+B'=(1163,2158)
+]
+
+[
+C'=(1160,1704)
+]
+
+[
+V'=(1160,1627)
+]
+
+where:
+
+\begin{itemize}
+\item (A') is the intersection reference point,
+\item (B') is the bicycle,
+\item (C') is the arch,
+\item (V') is the vanishing point.
+\end{itemize}
+
+Using the pixel coordinates measured from the annotated image, the distances along the blue line were:
+
+[
+A'B' = 1336.15
+]
+
+[
+B'C' = 454
+]
+
+[
+C'V' = 77
+]
+
+The cross-ratio of four collinear points is defined as
+
+\frac{AC}{BC}
+\cdot
+\frac{BV}{AV}
+]
+
+Since the vanishing point represents a point at infinity,
+
+[
+AV=\infty
+]
+
+and
+
+[
+BV=\infty
+]
+
+Therefore,
+
+[
+\frac{BV}{AV}=1
+]
+
+and the expression simplifies to
+
+\frac{AC}{BC}
+]
+
+Using the measured image coordinates, the computed cross-ratio was
+
+[
+(A,B;C,V)=1.12
+]
+
+From Google Maps, the real-world distance between the reference point and the arch was found to be
+
+[
+AC=160\text{ m}
+]
+
+Substituting into the simplified cross-ratio equation,
+
+\frac{160}{BC}
+]
+
+which gives
+
+\frac{160}{1.12}
+]
+
+142.86\text{ m}
+]
+
+Therefore, the estimated real-world distance between the bicycle and the arch is
+
+[
+\boxed{143\text{ m}}
+]
+
+(rounded to the nearest metre).
+
+ For this task, I used a pretrained YOLOv8 object detection model from the Ultralytics framework to detect the bicycle in the provided image. YOLO (You Only Look Once) is a deep learning model trained on the COCO dataset, which contains common object categories such as persons, bicycles, cars, and motorcycles. According to the COCO class definitions, the class identifier for a bicycle is 1 and the class identifier for a person is 0.
+
+I implemented the detector in Python using the Ultralytics API. Initially, I tested the lightweight YOLOv8n model on the provided image. The model failed to detect the bicycle and instead reported "no detections". Since the bicycle is relatively small and far from the camera, I suspected that the model capacity was insufficient. I then switched to the larger YOLOv8s model and ran inference at a higher image resolution. With these changes, the detector successfully identified several objects in the scene, including multiple persons, a motorcycle, and the bicycle. Interestingly, the motorcycle near the bottom of the image was detected with a higher confidence score than the bicycle because it occupies a much larger portion of the image.
+
+The model produced bounding boxes, confidence scores, and class labels for all detected objects. For the purposes of this assignment, I filtered the detections and retained only the bicycle bounding box. The resulting annotated image was saved and included in the submission. To obtain the bicycle location for later single-view metrology calculations, I used the bottom centre of the bounding box rather than the geometric centre. This point provides a better approximation of the location where the bicycle touches the ground and is therefore more suitable for distance estimation.
+
+One challenge encountered during the experiment was detecting small distant objects. Larger objects close to the camera were detected reliably, whereas the bicycle required a larger model and higher image resolution. This demonstrated how object size and image quality significantly influence detection accuracy.
+
+The software tools used were Python, Ultralytics YOLOv8, OpenCV, and the pretrained YOLO model weights. This task provided practical experience with deep-learning-based object detection and showed how object localization can be combined with projective geometry to estimate real-world distances from a single image.
+
+\end{studentSpace}
+
+
+\subsection{Questions}
+
+You are expected to write answers inline in the student space provided. (see Section 5)
+
+\begin{enumerate}
+\item Use a tool from Google that tells you the real world distance from MB (the red line) to the arch.  Use a number in metres and approximate to the nearest distance divisible by 10. 
+\begin{studentSpace}
+    
+    I used the distance measurement tool available in Google Maps to estimate the real-world distance between the MB reference line and the Arch. By selecting two points corresponding to these locations and measuring the distance along the road, I obtained a value close to 160 metres. Following the instructions, I approximated the result to the nearest distance divisible by 10.
+\end{studentSpace}
+
+\item Why can you NOT find the distance to the bicycle without making any assumption about the bicycle using the same tool? (Answer in one line.)
+\begin{studentSpace}
+    
+    The bicycle is not a permanent landmark visible on the map, so its real-world location cannot be determined directly from Google Maps.
+\end{studentSpace}
+
+\item Ensure that you draw a line in dark blue color (using an image annotation tool of your choice) that is used for obtaining the cross reference.  Show this line and the corresponding image in your submission. How did you draw the line? Keep in mind that cross-ratio is a \textbf{1D} concept and requires 4 collinear points. Make sure these points lie on the dark blue color line above.
+\begin{studentSpace}
+    
+    To apply cross-ratio, I first drew a dark blue line passing through four collinear points of interest. Since cross-ratio is a one-dimensional projective invariant, all points used in the computation must lie on the same line. I selected a line that passes through the bicycle, the arch, and extends toward the vanishing point. The line was drawn using the annotation tools available in the Mac Preview application. I used the line-drawing tool to carefully align the blue line with the direction of the road so that all chosen points lay on the same geometric line. This allowed the image geometry to be reduced to a one-dimensional problem suitable for cross-ratio calculations.
+\end{studentSpace}
+
+\item Ensure that you annotate 4 points of interest as A', B', C', V'  in sorted order of distance from the camera where B' corresponds to the biycle and V' corresponds to the vanishing point.  What do A' and B' correspond to?
+We recommend using MS Paint for annotation and identifying pixel coordinates.
+\begin{studentSpace}
+
+The points were selected in increasing order of distance from the camera:
+
+\begin{itemize}
+\item \(A'\): Point where the intersection line crosses the blue reference line.
+\item \(B'\): Ground contact point of the detected bicycle.
+\item \(C'\): Point corresponding to the Arch.
+\item \(V'\): Vanishing point of the road direction.
+\end{itemize}
+
+After annotating the blue reference line and the points on the image, I used the online image editing tool Photopea to obtain accurate pixel coordinates. The cursor position in Photopea was used to read the pixel coordinates of \(A'\), \(B'\), \(C'\), and \(V'\), which were then used in the cross-ratio calculations.
+
+In particular, \(B'\) was chosen as the bottom centre of the bicycle bounding box because it best approximates the location where the bicycle touches the ground. Since the distance estimation is performed on the ground plane, this point is more meaningful than the geometric centre of the bounding box.
+\end{studentSpace}
+
+\item Be sure to  explain in detail your method (and code) for finding the bicycle. Does the choice of reference point within the bounding box from the deep learning model affect distance estimation accuracy? Quantify.
+\end{enumerate}
+\begin{studentSpace}
+
+
+The bicycle was detected using a pretrained YOLOv8 model from the Ultralytics framework. I initially tested YOLOv8n, but it failed to detect the bicycle because the bicycle occupies only a small region of the image. After switching to YOLOv8s and using a higher image resolution, the model successfully detected the bicycle along with several other objects such as persons and a motorcycle.
+
+The detector produced a bounding box around the bicycle. A key practical consideration is the choice of the reference point within this bounding box. Using the geometric centre of the box can introduce error because the centre does not correspond to the bicycle's position on the ground. Since the distance estimation is performed along the ground plane, the bottom centre of the bounding box provides a more meaningful reference point.
+
+Even a small vertical shift of a few pixels can noticeably affect the computed distance because the bicycle is relatively far from the camera and close to the vanishing point. Therefore, selecting the bottom-centre point improves the accuracy and consistency of the single-view metrology calculations.
+\end{studentSpace}
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+\section{Your picture}
+
+In this section, take a picture of you and, alternately, your teammate
+(or some other person) similar to the one that has been provided in
+your locality. Identify two specific points of interest and tell us
+how far s/he is from the point of interest in the real world. We are
+expecting two pictures in your submission; one corresponding to the
+problem statement (often called as the first person view), and the
+second, a picture of you taking a picture of your teammate, i.e., a
+third person view. The second picture will show both the cameraman and
+the teammate (and ideally at the same time).
+
+\subsection{Tasks}
+
+\begin{enumerate}
+\item Capture and include the images in your submission.
+% \begin{studentSpace}
+%     \vspace{5cm}
+% \end{studentSpace}
+\item Detect the teammate using the same deep learning model.
+% \begin{studentSpace}
+%     \vspace{5cm}
+% \end{studentSpace}
+\item Estimate the distance between one of the objects of interest and
+  the team mate.
+\begin{studentSpace}
+    \textbf{4.1 Task 1: Capture and include the images in your submission}
+
+I captured a first-person view image similar to the example provided in the assignment. The image contains a straight road, a distant object of interest (a shack), and a person standing on the road. I also captured a third-person view image showing the photographer taking the picture. These images were included in the submission and used for the distance estimation experiment.
+
+\bigskip
+
+\textbf{4.1 Task 2: Detect the teammate using the same deep learning model}
+
+I used the Ultralytics implementation of YOLOv8 for person detection. Since the teammate occupied only a small number of pixels in the image, the default YOLOv8s model initially failed to detect the person reliably. To improve detection performance, I switched to the larger YOLOv8x model and increased the inference image size. The model successfully detected the teammate with a confidence score of approximately 0.78.
+
+For distance estimation, I used the bottom-center point of the detected bounding box rather than the center of the box. The bottom-center better approximates the point where the person touches the ground and therefore lies on the ground plane used for the projective geometry calculations.
+
+\bigskip
+
+\textbf{4.1 Task 3: Estimate the distance between the teammate and the object of interest}
+
+The shack behind the teammate was selected as the object of interest. Using Google Maps, I measured the distance between the camera position and the shack as 72.25 metres.
+
+A blue reference line was drawn through four collinear points:
+
+[
+A'=(638,1250)
+]
+
+[
+B'=(638,875)
+]
+
+[
+C'=(635,830)
+]
+
+[
+V'=(632,734)
+]
+
+where (A') is the camera reference line, (B') is the teammate, (C') is the shack, and (V') is the vanishing point.
+
+Using the image coordinates, the cross-ratio was computed as:
+
+[
+(A',B';C',V') \approx 2.55
+]
+
+Since cross-ratio is preserved under perspective projection and (V) corresponds to the point at infinity,
+
+[
+(A,B;C,V)=\frac{AC}{BC}
+]
+
+Using (AC = 72.25) m,
+
+[
+BC=\frac{72.25}{2.55}
+]
+
+[
+BC \approx 28.3\text{ m}
+]
+
+Therefore, the estimated distance between the person and the shack is approximately 28.3 metres.
+
+
+\textbf{Third-Person View}
+
+In addition to the first-person view image, a third-person view image was captured showing the photographer taking the picture. The same procedure was repeated on this image.
+
+A blue reference line was drawn through four approximately collinear points:
+
+\[
+A' = (676,999)
+\]
+
+\[
+B' = (844,598)
+\]
+
+\[
+C' = (924,401)
+\]
+
+\[
+V' = (944,356)
+\]
+
+where:
+
+\begin{itemize}
+    \item \(A'\) corresponds to the back gate,
+    \item \(B'\) corresponds to the teammate,
+    \item \(C'\) corresponds to the Commerzone front gate,
+    \item \(V'\) corresponds to the vanishing point.
+\end{itemize}
+
+The points were selected manually using image annotation tools, and their pixel coordinates were obtained using Photopea.
+
+Using the image coordinates, the cross-ratio was computed and related to the corresponding real-world distances. The known real-world distance between the back gate and the Commerzone front gate was:
+
+\[
+AC = 220\ \text{m}
+\]
+
+The computed ratio was:
+
+\[
+\frac{AC}{BC} = 1.1425
+\]
+
+Therefore,
+
+\[
+BC = \frac{220}{1.1425}
+\]
+
+\[
+BC \approx 192.6\ \text{m}
+\]
+
+Hence, the estimated distance between the teammate and the Commerzone front gate is:
+
+\[
+\boxed{192.6\ \text{m}}
+\]
+
+This estimate was obtained using the same single-view metrology pipeline used in the first-person view experiment: object localization, identification of collinear reference points, vanishing point annotation, and cross-ratio preservation under perspective projection.
+
+\end{studentSpace}
+\end{enumerate}
+
+You are expected to write answers inline.
+
+\subsection{Question}
+\begin{enumerate}
+
+\item As before, draw the line of interest (in blue color) marking all points of interest. 
+ \begin{studentSpace}
+    A blue line was drawn using the image annotation tools available in Preview on macOS. The line was chosen so that all four required points ((A'), (B'), (C'), and (V')) were approximately collinear. This is necessary because cross-ratio is a one-dimensional projective invariant and requires four points lying on the same line.
+
+The point (A') corresponds to the camera reference line, (B') corresponds to the detected teammate, (C') corresponds to the shack, and (V') corresponds to the vanishing point obtained from the perspective direction of the road.
+
+Pixel coordinates of these points were extracted using the online Photopea editor by enabling the Info panel and reading the cursor coordinates directly from the image.
+
+Similarly for third person view, the points correspond to the back gate (\(A'\)), the teammate (\(B'\)), the Commerzone front gate (\(C'\)), and the vanishing point (\(V'\)). The points were chosen so that they lie approximately on the same perspective line, allowing the use of the cross-ratio.
+\end{studentSpace}
+  
+\item Explain how you got the real world distances.
+\begin{studentSpace}
+    The real-world distance between the camera position and the shack was measured using Google Maps. This provided a known reference distance of 72.25 metres. After identifying four collinear points in the image, the image-space cross-ratio was computed using their pixel coordinates.
+Since cross-ratio is invariant under perspective projection, the image-space cross-ratio is equal to the real-world cross-ratio. By treating the vanishing point as the point at infinity, the cross-ratio simplifies to a ratio of real-world distances. This allowed the unknown distance between the person and the shack to be computed from the known camera-to-shack distance.
+
+The real-world distance between the back gate and the Commerzone front gate was measured using Google Maps and found to be approximately \(220\) metres. After identifying the points \(A'\), \(B'\), \(C'\), and \(V'\) in the image, their pixel coordinates were extracted using Photopea.
+\end{studentSpace}
+
+  
+\item Discuss practical challenges encountered while applying the projective
+geometry concepts to real-world images. Number all challenges and write independent challenges i.e. don't mix up the challenges.
+\begin{studentSpace}
+    \textbf{Challenge 1: Accurate identification of the vanishing point}
+
+The vanishing point is not physically visible in the image and must be estimated from perspective cues. Small errors in locating the vanishing point can significantly affect the final distance estimate.
+
+\textbf{Challenge 2: Object detection at large distances}
+
+The teammate occupied only a small number of pixels in the image. The initial YOLOv8s model failed to detect the person reliably, requiring the use of a larger model and higher inference resolution.
+
+\textbf{Challenge 3: Selecting the correct reference point}
+
+The center of a bounding box does not necessarily correspond to the physical location of the person on the ground. Choosing the bottom-center of the bounding box was necessary for obtaining meaningful geometric measurements.
+
+\textbf{Challenge 4: Manual annotation error}
+
+The coordinates of (A'), (B'), (C'), and (V') were selected manually. Small errors while clicking points in Photopea can propagate through the cross-ratio calculation.
+\end{studentSpace}
+
+
+\item What programs did you write and why?  
+\begin{studentSpace}
+    I wrote a Python program using the Ultralytics YOLOv8 library to detect the teammate automatically and obtain the bounding box coordinates. The program also extracted the bottom-center point of the detected bounding box, which was used as the ground contact point for projective geometry calculations.
+
+Apart from the detection program, no additional computational programs were required. Image annotation was performed using Preview on macOS, while pixel coordinates were obtained using Photopea. The distance calculations and cross-ratio computations were then performed using the extracted coordinates.
+\end{studentSpace}
+
+
+\end{enumerate}
+
+\section{Submit}
+
+Write a description of your method and all relevant aspects of your
+experiments. Write it in line in the text under the relevant section.  Your writing should be similar to  a blog post so that anyone in the class can fully understand the pain/joy/content you experienced (feel free to take copious input from an LLM but do not substitute an LLM for learning).
+
+The total length should be no less than 500 words and
+should normally exceed 800 words.  Your ultimate aim in writing your answers
+to mention important aspect of your assignment for the task, with
+emphasis on the last task.  This will include the methods employed
+listing all the software tools you employed, as well experimental
+aspects such as when you took the picture, how many pictures 
+you took, whether the method works in dawn, morning, and dusk, and so
+on. Be creative.  
+
+Do not submit any large file such as
+model weights and ancillary files that we can easily get from the
+internet to reproduce.

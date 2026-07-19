@@ -1,0 +1,18 @@
+{
+  "image": "images/bicycle_bb.png",
+  "reference_distance_m": 160,
+  "notes": [
+    "Measure this A-to-C distance in Google Maps using the Measure distance tool.",
+    "A is the red MB line on the blue road line.",
+    "C is the arch on the same blue road line.",
+    "V is the road-direction vanishing point.",
+    "bbox_xyxy is the visible YOLO bicycle box in the provided annotated image."
+  ],
+  "points": {
+    "A": [1265, 3505],
+    "C": [1110, 1735],
+    "V": [1090, 1505]
+  },
+  "bbox_xyxy": [1105, 2013, 1200, 2154],
+  "chosen_object_point": "bottom_center"
+}

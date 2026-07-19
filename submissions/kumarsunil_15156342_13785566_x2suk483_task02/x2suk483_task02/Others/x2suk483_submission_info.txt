@@ -1,0 +1,33 @@
+TASK 02 - SUBMISSION INFORMATION (second .txt payload)
+======================================================
+This file is the second, identifying payload. It is submitted to the
+SECOND submission link and is deliberately kept OUT of the zip, which is
+anonymous (per the instruction to remove identifying instructions from
+the zip payload).
+
+Name            : Sunil Kumar
+Student ID      : x2suk483
+Learner ID      : Y29    
+Course          : CSO-610 (Computer Vision, ePGD, IIT Bombay)
+Zip submitted   : x2suk483_Task02.zip
+
+TEAM
+----
+Mode            : Individual (not part of any group)
+Teammate name   : N/A
+Teammate ID     : N/A
+Contribution    : Self 100% (individual submission)
+
+LATE DAYS
+---------
+Late days availed: [ 0 by default. If using any, they must be availed
+                     before the actual submission deadline. ]
+
+DISCREPANCIES / NOTES
+---------------------
+- Part 2 ("Your picture"): first-person and third-person photos are attached;
+
+  The distance for Part 2 was computed with the same cross-ratio pipeline.
+- Reference distance MB->arch verified on Google Maps as 160.35 m (~160 m).
+- Part 1 bicycle->arch reported as ~120 m (124 m with vanishing point,
+  121 m with three finite references).

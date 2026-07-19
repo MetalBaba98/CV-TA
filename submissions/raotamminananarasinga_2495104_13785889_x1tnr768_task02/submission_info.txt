@@ -1,0 +1,26 @@
+CSO-610 Summer 2025-26 — Task 02
+=================================
+
+Group ID       : 15
+Learner ID     : y09
+Contribution   : 50%
+
+Assignment     : Task 02 — How far to attaining knowledge?
+Submission zip : x1tnr768_task02.zip
+
+Team members (remote collaboration):
+  - Learner y09  : 50%  (photos, YOLO detection, cross-ratio code, LaTeX writeup)
+  - Teammate      : 50%  (concept discussion, cross-ratio derivation, review)
+    (teammate was in a different state; collaboration was remote over video calls)
+
+Submission files:
+  answers.pdf            — Main answers document
+  ReflectionEssay.pdf    — Reflection essay
+  detect_bicycle.py      — YOLO detection script
+  cross_ratio.py         — Cross-ratio distance estimation script
+  images/bicycle.jpg     — Bicycle image (sample.JPG resized)
+  images/firstPersonView.png   — First-person lane photo (measuring camera view)
+  images/thirdPersonView.png   — Third-person lane photo (overview with both people)
+  images/otherImage1.png       — Annotated bicycle image with reference line
+  images/otherImage2.png       — Annotated lane photo with reference line
+  readme.txt             — Submission notes

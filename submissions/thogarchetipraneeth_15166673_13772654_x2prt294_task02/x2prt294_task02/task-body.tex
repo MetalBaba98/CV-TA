@@ -1,0 +1,621 @@
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % Task 02 : Single View Geometry and Distance Estimation
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \section{Overview}
+
+% In this task, you will estimate real-world distances using a single
+% image by -- well -- applying what you learnt in class. The task
+% focuses on  linearity, cross-ratio, and the practical use
+% of object localization (using a  deep learning tool) to infer
+% distances from a single image. This topic is called single view metrology.
+
+% \section{Background}
+
+% You are provided with an image (see Fig.~\ref{fig:bicycleBBox}) of
+% the way from the main building
+% (MB) of IIT Bombay to the arch of knowledge (gyanam-paramam-dhyeyam) (``arch''). (As an aside, the arch encodes the motto of IITB).
+
+% Take a moment to digest the provided image. Observe
+% \begin{itemize} 
+% \item the red line overlaid for reference, 
+% \item the cross road (``intersection'') that has the palm tree on one side and a building
+% on the other side
+% \item a bicycle
+% \end{itemize}
+
+% Amongst the  objects, look for the street lights  towards the right. We refer to these as 
+% ``poles'' in this assignment. The poles are numbered starting from the camera to the Arch. We will casually refer to the red line as equivalent to MB.
+% We are
+% going to assume that the cross road (aka intersection)  is a straight line passing
+% through the base of the third pole parallel to the red
+% line, and that the mb-to-arch line is perpendicular to
+% the intersection line.
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %\section{Real life distances}
+% %%The following real world distances are hypothesized:
+% %\begin{itemize}
+% %\item Distance from the red line to the arch: \textbf{160 metres}
+% %\item Distance from  the red line to the intersection: \textbf{50 metres}
+% %\end{itemize}
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \section{Who \href{https://en.wikipedia.org/wiki/Who_Moved_My_Cheese\%3F}{moved} my bicycle?}%
+
+% \subsection{Task}
+% Consider the bicycle in
+% Fig.~\ref{fig:bicycleBBox}. Report the real-world distance between the
+% bicycle and the arch.
+
+% \begin{figure}[h!]
+% \centering
+% \includegraphics[width=0.45\linewidth]{bicycle_bb}
+% \caption{A bounding box prediction from YOLOv8.}
+% \label{fig:bicycleBBox}
+% \end{figure}
+
+% Use a pretrained deep learning model to detect the
+% bicycle. This is an object detection task. Please refer to tutorial here, and stick to \textbf{YOLO} models: \url{https://docs.ultralytics.com/tasks/detect#models}
+% Also look at the COCO dataset \url{https://cocodataset.org/#home} to find out the class identifiers for bicycles and persons.
+% %The bounding box from the model will give you the coordinates of the bicycle. 
+
+% \begin{studentSpace}
+%     \vspace{10cm}
+% \end{studentSpace}
+
+
+% \subsection{Questions}
+
+% You are expected to write answers inline in the student space provided. (see Section 5)
+
+% \begin{enumerate}
+% \item Use a tool from Google that tells you the real world distance from MB (the red line) to the arch.  Use a number in metres and approximate to the nearest distance divisible by 10. 
+% \begin{studentSpace}
+%     \vspace{3cm}
+%     Measured \textbf{137.22 m} with Google Earth's measure tool, rounded to the nearest 10 - \textbf{ 140 m.}
+% \end{studentSpace}
+
+% \item Why can you NOT find the distance to the bicycle without making any assumption about the bicycle using the same tool? (Answer in one line.)
+% \begin{studentSpace}
+%     \vspace{3cm}
+%     Google's ruler only works between things it can actually see and pin down on the satellite photo - buildings, roads, fixed spots. \textbf{The bicycle isn't on that map (it's a movable thing that wasn't there when the satellite photo was taken), so there's nothing to click on for it. To get its distance you first have to assume where it's standing} \end{studentSpace}
+
+% \item Ensure that you draw a line in dark blue color (using an image annotation tool of your choice) that is used for obtaining the cross reference.  Show this line and the corresponding image in your submission. How did you draw the line? Keep in mind that cross-ratio is a \textbf{1D} concept and requires 4 collinear points. Make sure these points lie on the dark blue color line above.
+% \begin{studentSpace}
+%     \vspace{3cm}
+%     First I found that vanishing point by extending the two edges of the path until they crossed. Then I drew the dark-blue line from that point straight down through the spot where the bicycle touches the ground. This line is parallel to the road in reality, so it meets the same vanishing point, and it passes right through the bicycle. This gave me my four points sitting on one straight line: the main building at the bottom A', then the bicycle B', then the arch C', then the vanishing point at the top V'. I drew it in MS Paint with the straight-line tool and read off each point's pixel position.
+% \end{studentSpace}
+
+% \item Ensure that you annotate 4 points of interest as A', B', C', V'  in sorted order of distance from the camera where B' corresponds to the biycle and V' corresponds to the vanishing point.  What do A' and B' correspond to?
+% We recommend using MS Paint for annotation and identifying pixel coordinates.
+% \begin{studentSpace}
+%     \vspace{3cm}
+%     \textbf{A′}is the main-building reference - the point where the dark-blue line starts. It's the anchor at 0 m. Paired with C′ (the arch at 140 m), A′C' gives you the two known real-world distances that make the whole cross-ratio solvable. A′ and C′ are the knowns. 
+
+%     \textbf{B′} is the bicycle - the unknown we're solving for. B' corresponds to the specific pixel where the bicycle meets the ground.
+% \end{studentSpace}
+
+% \item Be sure to  explain in detail your method (and code) for finding the bicycle. Does the choice of reference point within the bounding box from the deep learning model affect distance estimation accuracy? Quantify.
+% \end{enumerate}
+% \begin{studentSpace}
+%     \vspace{3cm}
+
+%     \textbf{Finding the bicycle}
+
+%     I used a pretrained YOLO detector (YOLO26 from Ultralytics), which already knows how to spot bicycles. My first run with the small model found nothing, because it shrinks the image to 640 px and the far-away bicycle disappeared. I switched to the large model (yolo26x) and a bigger 1280-px view, and it found the bicycle at 92% confidence.
+
+%         \begin{verbatim}
+%         from ultralytics import YOLO
+%         model = YOLO("yolo26x.pt")
+%         r = model("sample.jpg", imgsz=1280, conf=0.10)[0]
+%         for b in r.boxes:
+%             if int(b.cls) == 1:          # bicycle
+%                 print(b.xyxy[0].tolist(), float(b.conf))
+%         \end{verbatim}
+        
+%     I use the bottom-centre (the ground contact) as the bicycle's position.
+
+%     \textbf{Does the reference point matter?}
+    
+%     Yes. Trying the top, middle, and bottom of the box gives 113.4 m, 115.4 m, and 117.1 m to the arch — a spread of about 3.8 m. Bottom-centre is correct (it's where the wheel meets the ground), so my answer is ≈117 m from the arch
+
+
+% \end{studentSpace}
+
+
+% %%%%%%%%%%%%%%%%%%%%%%
+% \section{Your picture}
+
+% In this section, take a picture of you and, alternately, your teammate
+% (or some other person) similar to the one that has been provided in
+% your locality. Identify two specific points of interest and tell us
+% how far s/he is from the point of interest in the real world. We are
+% expecting two pictures in your submission; one corresponding to the
+% problem statement (often called as the first person view), and the
+% second, a picture of you taking a picture of your teammate, i.e., a
+% third person view. The second picture will show both the cameraman and
+% the teammate (and ideally at the same time).
+
+% \subsection{Tasks}
+
+% \begin{enumerate}
+% \item Capture and include the images in your submission.
+% % \begin{studentSpace}
+% %     \vspace{5cm}
+% % \end{studentSpace}
+% \item Detect the teammate using the same deep learning model.
+% % \begin{studentSpace}
+% %     \vspace{5cm}
+% % \end{studentSpace}
+% \item Estimate the distance between one of the objects of interest and
+%   the team mate.
+% \begin{studentSpace}
+%     \vspace{5cm}
+%     I captured a first-person view (the teammate standing in the room with the reference line) and a third-person view (a second photo showing me photographing him, both of us in frame, to document that the scene and the 120 cm were real). I detected the teammate with the same pretrained YOLO model used in the bicycle task (person = COCO class 0), which returned a bounding box at 0.94 confidence. I then estimated the distance from the teammate to the object of interest (a can/bottle placed on the floor) using the cross-ratio method.
+% \end{studentSpace}
+% \end{enumerate}
+
+% You are expected to write answers inline.
+
+% \subsection{Question}
+% \begin{enumerate}
+
+% \item As before, draw the line of interest (in blue color) marking all points of interest. 
+% % \begin{studentSpace}
+% %     \vspace{5cm}
+% % \end{studentSpace}
+  
+% \item Explain how you got the real world distances.
+% \begin{studentSpace}
+% I placed four points on one floor tile seam: a reference mark $A'$, the object (a can) at $C'$, the teammate's foot contact at $B'$, and the vanishing point $V'$ where the floor lines converge. By distance from the camera: $A'$ (0 cm), $C'$ (60 cm), $B'$ (teammate, unknown), $V'$ (at infinity). I measured $A'$ to $C'$ on the floor with a tape: 60 cm. One known length suffices because the cross-ratio of four collinear points is preserved under projection, and with $V'$ at infinity it reduces to a simple ratio.
+
+% Using $C(x_1,x_2,x_3,x_4)=\dfrac{|x_1x_2|\,|x_3x_4|}{|x_1x_3|\,|x_2x_4|}$ with points $A',C',B',V'$ and pixel positions $A'{=}3105$, $C'{=}2712$, $B'{=}2338$, $V'{=}1618$:
+% \[ C=\frac{A'C'\cdot B'V'}{A'B'\cdot C'V'}=\frac{393\times720}{767\times1094}=0.337 \]
+% In the real world ($V'$ at infinity, its terms cancel), with the teammate at distance $p$ from $A'$:
+% \[ C=\frac{60\times\infty}{p\times\infty}=\frac{60}{p} \]
+% Equating: $60/p=0.337 \Rightarrow p=178$ cm, so the teammate is $178-60=118$ cm behind the object. A tape measure gave 120 cm, so the estimate is accurate to within about 2 cm. The teammate was found with YOLO (person, COCO class 0), using the box bottom-centre as $B'$. The main error source is that contact pixel: the true contact gave 118 cm, the looser box bottom gave $\approx$100 cm --- amplified by the short 60 cm baseline.
+% \end{studentSpace}
+
+  
+% \item Discuss practical challenges encountered while applying the projective
+% geometry concepts to real-world images. Number all challenges and write independent challenges i.e. don't mix up the challenges.
+% \begin{studentSpace}
+%     \vspace{10cm}
+    
+% 1. Collinearity: My first arrangement had the teammate standing off the receding line, so the four points were not collinear; the cross-ratio is only valid for points on one straight line, so the line had to be redrawn through the foot contact toward the shared vanishing point.
+% 2. In one attempt the teammate and the object sat at the same distance from the camera — only 3 pixels apart in depth — which blew the cross-ratio up and returned a meaningless negative distance. Separating them in depth fixed it.
+% 3. Occlusion: When the teammate stood in front of the object, his body hid the object's floor contact, so it could not be read. I solved this by placing both reference points on the floor in front of the teammate.
+
+% \end{studentSpace}
+
+
+% \item What programs did you write and why?  
+% \begin{studentSpace}
+%     \vspace{5cm}
+%     A YOLO detection script (detect.py, using Ultralytics YOLO26). Purpose: to locate the teammate automatically and read the bounding box / foot-contact pixel, rather than guessing it by eye — reproducible and consistent with the bicycle task. It runs the pretrained model on the photo and filters for the person class.
+% \end{studentSpace}
+
+
+% \end{enumerate}
+
+% \section{Submit}
+
+% Write a description of your method and all relevant aspects of your
+% experiments. Write it in line in the text under the relevant section.  Your writing should be similar to  a blog post so that anyone in the class can fully understand the pain/joy/content you experienced (feel free to take copious input from an LLM but do not substitute an LLM for learning).
+
+% The total length should be no less than 500 words and
+% should normally exceed 800 words.  Your ultimate aim in writing your answers
+% to mention important aspect of your assignment for the task, with
+% emphasis on the last task.  This will include the methods employed
+% listing all the software tools you employed, as well experimental
+% aspects such as when you took the picture, how many pictures 
+% you took, whether the method works in dawn, morning, and dusk, and so
+% on. Be creative.  
+
+% Do not submit any large file such as
+% model weights and ancillary files that we can easily get from the
+% internet to reproduce.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Task 02 : Single View Geometry and Distance Estimation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% HONOR CODE  (edit the bracketed parts; keep only if true)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Honor Code}
+
+I/we affirm that the work submitted here is our own and that we have not
+engaged in any form of academic dishonesty.
+
+\noindent\textbf{Sources used:}
+\begin{itemize}
+\item \textbf{LLM.} I used Anthropic's Claude as a tutor and debugging
+  assistant throughout this task --- to understand the cross-ratio
+  method, to fix the YOLO/Python environment, and to check the
+  distance calculations. I did not substitute it for learning; all
+  photographs, tape measurements, annotations, and final decisions are
+  my own. Representative prompts: \emph{[e.g. ``explain how cross-ratio
+  recovers a real distance from one image'', ``why does my YOLO run
+  return no detections'', ``verify my cross-ratio calculation against
+  these pixel coordinates'']}. Conversation link: \emph{[paste link]}.
+\item \textbf{Software/tools.} Ultralytics YOLO26, Google Earth,
+  MS~Paint, Python (NumPy), \texttt{pdflatex}.
+\item \textbf{People.} Teammate: \emph{[name, if any]}.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Overview}
+
+In this task, you will estimate real-world distances using a single
+image by -- well -- applying what you learnt in class. The task
+focuses on  linearity, cross-ratio, and the practical use
+of object localization (using a  deep learning tool) to infer
+distances from a single image. This topic is called single view metrology.
+
+\section{Background}
+
+You are provided with an image (see Fig.~\ref{fig:bicycleBBox}) of
+the way from the main building
+(MB) of IIT Bombay to the arch of knowledge (gyanam-paramam-dhyeyam) (``arch''). (As an aside, the arch encodes the motto of IITB).
+
+Take a moment to digest the provided image. Observe
+\begin{itemize} 
+\item the red line overlaid for reference, 
+\item the cross road (``intersection'') that has the palm tree on one side and a building
+on the other side
+\item a bicycle
+\end{itemize}
+
+Amongst the  objects, look for the street lights  towards the right. We refer to these as 
+``poles'' in this assignment. The poles are numbered starting from the camera to the Arch. We will casually refer to the red line as equivalent to MB.
+We are
+going to assume that the cross road (aka intersection)  is a straight line passing
+through the base of the third pole parallel to the red
+line, and that the mb-to-arch line is perpendicular to
+the intersection line.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Who \href{https://en.wikipedia.org/wiki/Who_Moved_My_Cheese\%3F}{moved} my bicycle?}%
+
+\subsection{Task}
+Consider the bicycle in
+Fig.~\ref{fig:bicycleBBox}. Report the real-world distance between the
+bicycle and the arch.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.45\linewidth]{bicycle_bb}
+\caption{A bounding box prediction from YOLOv8.}
+\label{fig:bicycleBBox}
+\end{figure}
+
+Use a pretrained deep learning model to detect the
+bicycle. This is an object detection task. Please refer to tutorial here, and stick to \textbf{YOLO} models: \url{https://docs.ultralytics.com/tasks/detect#models}
+Also look at the COCO dataset \url{https://cocodataset.org/#home} to find out the class identifiers for bicycles and persons.
+
+\begin{studentSpace}
+    \vspace{2cm}
+\end{studentSpace}
+
+
+\subsection{Questions}
+
+You are expected to write answers inline in the student space provided. (see Section 5)
+
+\begin{enumerate}
+\item Use a tool from Google that tells you the real world distance from MB (the red line) to the arch.  Use a number in metres and approximate to the nearest distance divisible by 10. 
+\begin{studentSpace}
+    Measured \textbf{137.22 m} with Google Earth's measure tool, rounded to the nearest 10 --- \textbf{140 m}.
+\end{studentSpace}
+
+\item Why can you NOT find the distance to the bicycle without making any assumption about the bicycle using the same tool? (Answer in one line.)
+\begin{studentSpace}
+    Google's measure tool only works between things it can see and pin down on the satellite photo (buildings, roads, fixed spots). \textbf{The bicycle is not on that map (it is a movable object that was not there when the satellite imagery was taken), so there is nothing to click on for it; to get its distance you must first assume where it is standing.}
+\end{studentSpace}
+
+\item Ensure that you draw a line in dark blue color (using an image annotation tool of your choice) that is used for obtaining the cross reference.  Show this line and the corresponding image in your submission. How did you draw the line? Keep in mind that cross-ratio is a \textbf{1D} concept and requires 4 collinear points. Make sure these points lie on the dark blue color line above.
+\begin{studentSpace}
+    First I found the vanishing point by extending the two edges of the
+    path until they crossed. Then I drew the dark-blue line from that
+    point straight down through the spot where the bicycle touches the
+    ground. This line is parallel to the road in reality, so it meets the
+    same vanishing point, and it passes right through the bicycle. This
+    gave me my four points on one straight line: the main building at the
+    bottom $A'$, then the bicycle $B'$, then the arch $C'$, then the
+    vanishing point at the top $V'$. I drew it in MS~Paint with the
+    straight-line tool and read off each point's pixel position.
+
+    \begin{center}
+    % set this to your annotated (blue-line) bicycle image
+    \includegraphics[width=0.45\linewidth]{bicycle_line}
+    \end{center}
+\end{studentSpace}
+
+\item Ensure that you annotate 4 points of interest as A', B', C', V'  in sorted order of distance from the camera where B' corresponds to the biycle and V' corresponds to the vanishing point.  What do A' and B' correspond to?
+We recommend using MS Paint for annotation and identifying pixel coordinates.
+\begin{studentSpace}
+    \textbf{$A'$} is the main-building reference --- the point where the
+    dark-blue line starts. It is the anchor at 0~m. Paired with $C'$ (the
+    arch at 140~m), $A'$ and $C'$ give the two known real-world distances
+    that make the whole cross-ratio solvable; they are the knowns.
+
+    \textbf{$B'$} is the bicycle --- the unknown we are solving for. $B'$
+    corresponds to the specific pixel where the bicycle meets the ground
+    (the bottom-centre of the bounding box).
+\end{studentSpace}
+
+\item Be sure to  explain in detail your method (and code) for finding the bicycle. Does the choice of reference point within the bounding box from the deep learning model affect distance estimation accuracy? Quantify.
+\end{enumerate}
+\begin{studentSpace}
+
+    \textbf{Finding the bicycle.}
+    I used a pretrained YOLO detector (YOLO26 from Ultralytics), which
+    already recognises bicycles ($\texttt{bicycle}$ is class 1 in the COCO
+    dataset). My first run with the small model found nothing, because it
+    shrinks the image to 640~px and the far-away bicycle disappeared. I
+    switched to the large model (\texttt{yolo26x}) and a larger 1280~px
+    inference size, and lowered the confidence threshold; the bicycle was
+    then detected at 92\% confidence. (The model also tagged the parked
+    scooter as a motorcycle, confirming the bicycle I located is the
+    distant one and not the scooter.)
+
+\begin{verbatim}
+from ultralytics import YOLO
+model = YOLO("yolo26x.pt")
+r = model("sample.jpg", imgsz=1280, conf=0.10)[0]
+for b in r.boxes:
+    if int(b.cls) == 1:          # COCO class 1 = bicycle
+        print(b.xyxy[0].tolist(), float(b.conf))
+\end{verbatim}
+
+    Detected box: $(1111, 2088)$--$(1200, 2148)$. I use the bottom-centre
+    (the ground contact) as the bicycle's position $B'$.
+
+    \textbf{Does the reference point matter?}
+    Yes. Trying the top, middle, and bottom of the box gives 113.4~m,
+    115.4~m, and 117.1~m to the arch --- a spread of about 3.8~m.
+    Bottom-centre is correct (it is where the wheel meets the ground), so
+    my answer is $\approx$117~m from the arch (about 23~m from the main
+    building). The estimate is even more sensitive to the placement of
+    $C'$ and $V'$, because in this image the arch sits very close to the
+    vanishing point.
+\end{studentSpace}
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+\section{Your picture}
+
+In this section, take a picture of you and, alternately, your teammate
+(or some other person) similar to the one that has been provided in
+your locality. Identify two specific points of interest and tell us
+how far s/he is from the point of interest in the real world. We are
+expecting two pictures in your submission; one corresponding to the
+problem statement (often called as the first person view), and the
+second, a picture of you taking a picture of your teammate, i.e., a
+third person view. The second picture will show both the cameraman and
+the teammate (and ideally at the same time).
+
+\subsection{Tasks}
+
+\begin{enumerate}
+\item Capture and include the images in your submission.
+\item Detect the teammate using the same deep learning model.
+\item Estimate the distance between one of the objects of interest and
+  the team mate.
+\begin{studentSpace}
+    I captured a first-person view (the teammate standing in the room
+    with the reference line, Fig.~\ref{fig:firstPerson}) and a
+    third-person view (Fig.~\ref{fig:thirdPerson}, showing me
+    photographing him with both of us in frame, to document that the
+    scene and the 120~cm were real). I detected the teammate with the same
+    pretrained YOLO model used in the bicycle task (person = COCO class 0),
+    which returned a bounding box at 0.94 confidence. I then estimated the
+    distance from the teammate to the object of interest (a can placed on
+    the floor) using the cross-ratio method.
+
+    \begin{center}
+    \includegraphics[width=0.40\linewidth]{firstPersonView}
+    \hfill
+    \includegraphics[width=0.40\linewidth]{thirdPersonView}
+    \end{center}
+\end{studentSpace}
+\end{enumerate}
+
+You are expected to write answers inline.
+
+\subsection{Question}
+\begin{enumerate}
+
+\item As before, draw the line of interest (in blue color) marking all points of interest. 
+\begin{studentSpace}
+    The dark-blue line runs along one floor tile seam through, in order of
+    distance from the camera, $A'$ (a floor mark, 0~cm), $C'$ (the can,
+    60~cm), $B'$ (the teammate's foot contact), and $V'$ (the vanishing
+    point where the floor lines converge). All four points lie on this one
+    straight line. See Fig.~\ref{fig:firstPerson}.
+
+    \begin{figure}[h!]
+    \centering
+    % set these to your own image filenames
+    \includegraphics[width=0.40\linewidth]{firstPersonView}
+    \caption{First-person view with the blue line of interest and the
+    four collinear points $A', C', B', V'$.}
+    \label{fig:firstPerson}
+    \end{figure}
+
+    \begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.40\linewidth]{thirdPersonView}
+    \caption{Third-person view: the cameraman photographing the teammate.}
+    \label{fig:thirdPerson}
+    \end{figure}
+\end{studentSpace}
+  
+\item Explain how you got the real world distances.
+\begin{studentSpace}
+    I placed four points on one floor tile seam: a reference mark $A'$,
+    the object (a can) at $C'$, the teammate's foot contact at $B'$, and
+    the vanishing point $V'$ where the floor lines converge. By distance
+    from the camera: $A'$ (0~cm), $C'$ (60~cm), $B'$ (teammate, unknown),
+    $V'$ (at infinity). I measured $A'$ to $C'$ on the floor with a tape:
+    60~cm. One known length suffices because the cross-ratio of four
+    collinear points is preserved under projection, and with $V'$ at
+    infinity it reduces to a simple ratio.
+
+    Using the cross ratio
+    $C(x_1,x_2,x_3,x_4)=\dfrac{|x_1x_2|\,|x_3x_4|}{|x_1x_3|\,|x_2x_4|}$
+    with the four points as $A', C', B', V'$ and pixel positions
+    $A'=3105$, $C'=2712$, $B'=2338$, $V'=1618$:
+    \[
+        C=\frac{A'C' \cdot B'V'}{A'B' \cdot C'V'}
+         =\frac{393\times 720}{767\times 1094}=0.337.
+    \]
+    In the real world ($V'$ at infinity, so its terms cancel), with the
+    teammate's distance from $A'$ written as $p$:
+    \[
+        C=\frac{60\times \infty}{p\times \infty}=\frac{60}{p}.
+    \]
+    Equating image and world cross-ratios:
+    $60/p = 0.337 \Rightarrow p = 178$~cm. The teammate therefore stands
+    178~cm from $A'$, i.e.\ $178-60 = 118$~cm behind the object. I verified
+    this with a tape measure: the true distance was 120~cm, so the
+    single-view estimate was accurate to within about 2~cm.
+
+    The teammate was located using the same pretrained YOLO model
+    (person = COCO class 0), taking the bottom-centre of the detected box
+    as the foot-contact point $B'$. The main source of error is the choice
+    of that contact pixel: the true foot contact gave 118~cm, whereas the
+    looser YOLO box bottom gave $\approx$100~cm --- a sensitivity made
+    worse by the short 60~cm reference baseline.
+\end{studentSpace}
+
+\item Discuss practical challenges encountered while applying the projective
+geometry concepts to real-world images. Number all challenges and write independent challenges i.e. don't mix up the challenges.
+\begin{studentSpace}
+\begin{enumerate}
+\item \textbf{Collinearity.} My first arrangement had the teammate
+  standing off the receding line, so the four points were not collinear;
+  the cross-ratio is only valid for points on one straight line, so the
+  line had to be redrawn through the foot contact toward the shared
+  vanishing point.
+\item \textbf{Equal-depth degeneracy.} In one attempt the teammate and
+  the object sat at the same distance from the camera --- only 3 pixels
+  apart in depth --- which blew the cross-ratio up and returned a
+  meaningless negative distance. Separating them in depth fixed it.
+\item \textbf{Occlusion.} When the teammate stood in front of the object,
+  his body hid the object's floor contact, so it could not be read. I
+  solved this by placing both reference points on the floor in front of
+  the teammate.
+\item \textbf{Reference-pixel ambiguity.} The bottom of the YOLO box did
+  not coincide with the true foot contact; the box bottom gave
+  $\approx$100~cm while the true contact gave 118~cm against a measured
+  120~cm. Which pixel represents the subject matters more than the
+  detection itself.
+\item \textbf{Short reference baseline.} With $A'$ to $C'$ only 60~cm
+  apart, every pixel of error was strongly amplified; a $\pm 20$~px shift
+  in the foot point moved the result by about $\pm 10$~cm.
+\item \textbf{Vanishing-point uncertainty.} The tiled floor had faint
+  seams, making the vanishing point hard to locate precisely, and the
+  cross-ratio is most sensitive to points near $V'$.
+\end{enumerate}
+\end{studentSpace}
+
+\item What programs did you write and why?  
+\begin{studentSpace}
+\begin{enumerate}
+\item \textbf{A YOLO detection script} (\texttt{detect.py}, Ultralytics
+  YOLO26). Purpose: to locate the teammate (and earlier the bicycle)
+  automatically and read the bounding box / foot-contact pixel, instead of
+  guessing it by eye --- reproducible and consistent across both tasks. It
+  runs the pretrained model on the photo and filters for the relevant
+  class.
+\item \textbf{A cross-ratio calculator} (Python, NumPy). Purpose: the
+  cross-ratio arithmetic is error-prone by hand. The script takes the four
+  pixel coordinates and the known 60~cm, computes the image cross-ratio,
+  and solves for the teammate's distance. It also let me re-run the
+  calculation while moving the foot-contact reference point, which is how I
+  quantified the reference-pixel sensitivity reported above.
+\end{enumerate}
+\end{studentSpace}
+
+\end{enumerate}
+
+\section{Submit}
+
+\begin{studentSpace}
+\textbf{A short blog post on the experience.}
+
+Single view metrology turns out to be one of those ideas that looks like
+a magic trick and then becomes obvious once you see the machinery. The
+whole task rests on a single fact from class: the cross-ratio of four
+collinear points is invariant under projective transformation. A camera
+is a projective transformation, so the cross-ratio I measure in pixels
+equals the cross-ratio of the same four points in the real world. If
+three of those points are known (or one known length plus the vanishing
+point, which is the point at infinity), I can solve for the fourth. That
+is the entire engine behind both parts of this task.
+
+\textbf{The bicycle.} I started by measuring the main-building-to-arch
+distance in Google Earth (137.22~m, rounded to 140~m). For the bicycle I
+used a pretrained YOLO model rather than guessing its pixel location. My
+first run quietly returned nothing: the small (nano) model downsizes the
+image to 640~px, and the bicycle is so far down the path that it
+effectively vanished. Switching to the large \texttt{yolo26x} model at
+1280~px resolution and a lower confidence threshold recovered it at 92\%
+confidence. I drew the dark-blue line through the bicycle's ground contact
+toward the vanishing point, marked $A'$ (MB), $B'$ (bicycle), $C'$ (arch)
+and $V'$, and the cross-ratio gave roughly 117~m from the bicycle to the
+arch. The interesting wrinkle here is that the arch lies almost on top of
+the vanishing point, which makes the estimate twitchy --- a few pixels of
+error in $C'$ or $V'$ moves the answer by metres.
+
+\textbf{My own picture (the part that taught me the most).} This is where
+the theory met reality and lost a few rounds first. My initial photo had
+my teammate standing beside the object rather than in front of it, so when
+I computed the distance I got a meaningless negative number. The reason
+was instructive: the teammate and the object were at essentially the same
+depth from the camera (about three pixels apart along the receding line),
+and the cross-ratio divides by that gap, so it exploded. The cure was to
+arrange them at clearly different depths. The next problem was occlusion
+--- when the teammate stood on the line in front of the sofa, his body hid
+the object's contact with the floor, so I could not read its pixel. The
+fix was to flip the layout: put both reference marks on the floor in front
+of the teammate and stand him behind them, so nothing I needed was ever
+blocked. With a can as the object, a tape-measured 60~cm between the two
+floor marks, and the teammate detected by YOLO (person, COCO class 0), the
+cross-ratio estimated 118~cm from the teammate to the can. I then measured
+it with a tape: 120~cm. An error of about 2~cm from a single phone photo
+felt like a genuine result.
+
+\textbf{Tools and experiments.} I used Ultralytics YOLO26 for detection,
+Google Earth for the campus distance, MS~Paint for annotation and reading
+pixel coordinates, and a small Python/NumPy script for the cross-ratio.
+The final indoor photo took several attempts --- the first few failed on
+collinearity, equal depth, and occlusion before the geometry came out
+clean. I shot in daytime indoor light. Lighting matters in two ways: low
+or uneven light lowers YOLO's detection confidence, and it also washes out
+the faint tile seams I rely on to find the vanishing point, so the same
+method would be noticeably harder at dawn or dusk and most reliable in
+bright, even daylight.
+
+\textbf{What I take away.} The arithmetic was the easy part. The real work
+was the geometry of the setup --- keeping the four points genuinely
+collinear, separating the subject and object in depth, and avoiding
+occlusion --- and realising that the single most error-sensitive decision
+is which pixel I call the subject's ground contact. That choice moved my
+indoor answer by nearly 20~cm, more than the detection model itself ever
+did.
+\end{studentSpace}
+
+% Reminder: do NOT submit model weights (*.pt) or the torch/CUDA stack;
+% they are easily reproducible from the internet.
+

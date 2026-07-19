@@ -1,0 +1,54 @@
+\documentclass[11pt]{article}
+\usepackage{anysize,amsmath,url}
+\usepackage{HW}
+\marginsize{2.2cm}{2.2cm}{1.8cm}{1.8cm}
+\begin{document}
+\titleline{\semester}
+\exhead{Task 02 -- Reflection Essay}
+
+\noindent
+Going into this task I assumed the deep-learning part would be the
+mountain and the geometry a footnote. It turned out the other way round.
+Running YOLOv8 on the avenue photo and getting a labelled bicycle box
+back was a single function call. What actually took thought was believing
+-- and then proving to myself -- that a flat photograph with no depth
+information can still yield a real distance in metres.
+
+The hinge of the whole task is the cross ratio. Perspective destroys
+ordinary measurement: the avenue's two edges visibly converge towards the
+arch, so equal real lengths shrink as they recede, and ``measure pixels,
+multiply by a constant'' simply does not work. The cross ratio is the one
+combination of four collinear points that a perspective camera leaves
+unchanged, so its value in the photo equals its value on the ground. That
+single invariant is what lets three known distances pin down a fourth
+unknown one. Seeing the link back to the 25-May surveillance-camera
+example -- locating a train between two stations using the point where the
+rails meet -- was the moment the idea clicked.
+
+Two practical lessons stuck with me. First, the arch and the vanishing
+point are essentially the same point in this image, so I could not use
+both as references; their pixel positions were too close and the
+arithmetic went unstable. Moving to the intersection as the middle
+reference cured it. Second, and more striking, the choice of point inside
+the YOLO box mattered enormously. The box is a rectangle but the bicycle
+only meets the ground at the bottom; using the box centre instead of the
+wheel contact moved the answer by more than twenty metres. Near the
+vanishing point one pixel is worth roughly $0.16$~m, so where you ``stand''
+the object is not a detail -- it is the dominant source of error. By
+contrast, rounding my pixel readings to the nearest ten changed the
+result by under a metre. The modelling assumption, not the measurement
+precision, was the thing to get right.
+
+I cross-checked the bicycle distance two independent ways, once treating
+the vanishing point as the point at infinity and once with three finite
+landmarks, and the two agreed to within a few metres. That agreement did
+more for my confidence than any single calculation could have.
+
+If I were to redo it, I would spend longer nailing the vanishing point,
+since real path edges are not perfectly straight and that uncertainty
+propagates into everything downstream. The broader takeaway is that the
+machine-learning tool is a convenience that locates an object; the
+understanding lives entirely in the projective geometry and in respecting
+the assumptions -- collinearity, a level camera, an object truly on the
+line -- that the cross ratio quietly depends on.
+\end{document}

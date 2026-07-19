@@ -1,0 +1,34 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{parskip}
+\usepackage{hyperref}
+
+\title{Reflection Essay -- Task 00: Setting Up OpenCV with Python}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{What Did I Do?}
+
+This task required setting up a Python virtual environment from scratch, installing the OpenCV library along with NumPy and Matplotlib, and writing a short script to verify the installation by loading an image, converting it to grayscale, and saving the result.
+
+\section*{What Did I Learn?}
+
+Before this task, I had a vague understanding of virtual environments -- I knew they existed, but I had not thought carefully about \textit{why} they matter. Working through the setup made it concrete: when you install a package globally, it becomes available to every Python program on your machine, which can cause version conflicts across projects. A virtual environment is simply an isolated directory that holds its own copy of the Python interpreter and its own \texttt{site-packages} folder, so each project can declare exactly which versions it depends on without interfering with anything else.
+
+The \texttt{requirements.txt} workflow was another insight. The command \texttt{pip list --local --format=freeze > requirements.txt} captures only the packages installed \textit{inside} the environment (the \texttt{--local} flag excludes globally installed packages), making it easy for anyone to reproduce the exact same environment with \texttt{pip install -r requirements.txt}. This is important for reproducibility -- a cornerstone of scientific computing and machine learning.
+
+On the OpenCV side, I learned that the library reads images in BGR order by default (not the RGB order that most people expect from working with other imaging tools). This means colour channels are ordered Blue, Green, Red internally. Converting to grayscale with \texttt{cv2.cvtColor(img, cv2.COLOR\_BGR2GRAY)} collapses these three channels into a single luminance channel using a weighted formula that approximates human visual sensitivity, which weights the green channel most heavily.
+
+The image shape \texttt{(994, 1500, 3)} encodes (height, width, channels) as a NumPy array. After grayscale conversion the shape becomes \texttt{(994, 1500)} -- the channel dimension disappears entirely because a single number per pixel is sufficient to represent intensity. This distinction matters when writing image processing code: functions that expect a 3-channel input will fail if given a 2D grayscale array, so being aware of shape is essential for debugging.
+
+\section*{Why Convert to Grayscale?}
+
+This question is easy to dismiss -- ``just to save memory'' -- but the real answer is richer. Colour carries perceptual information that is often irrelevant to the geometric structure of a scene. Edge detection algorithms (Canny, Sobel) look for intensity gradients; colour does not add useful information and can even introduce false gradients at colour boundaries where luminance is constant. Feature detectors like SIFT and ORB are defined on grayscale images for the same reason. In deep learning, colour can matter (a stop sign is red for a reason), but when the task is purely structural -- counting objects, measuring distances, detecting motion -- grayscale simplifies the computation and reduces overfitting to irrelevant colour variations.
+
+\section*{Takeaway}
+
+Someone reading this essay who has never used OpenCV should come away knowing: (1) always work inside a virtual environment and track dependencies in \texttt{requirements.txt}; (2) OpenCV images are NumPy arrays in BGR order; (3) the shape tuple \texttt{(H, W, C)} tells you everything about an image's dimensions; and (4) grayscale conversion is a deliberate modelling choice, not merely a cost-saving shortcut. These four ideas will come up again and again in every subsequent computer vision task.
+
+\end{document}

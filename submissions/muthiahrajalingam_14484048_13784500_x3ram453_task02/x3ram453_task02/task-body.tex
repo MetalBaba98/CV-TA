@@ -1,0 +1,262 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Task 02 : Single View Geometry and Distance Estimation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Overview}
+
+In this task, you will estimate real-world distances using a single
+image by -- well -- applying what you learnt in class. The task
+focuses on  linearity, cross-ratio, and the practical use
+of object localization (using a  deep learning tool) to infer
+distances from a single image. This topic is called single view metrology.
+
+\section{Background}
+
+You are provided with an image (see Fig.~\ref{fig:bicycleBBox}) of
+the way from the main building
+(MB) of IIT Bombay to the arch of knowledge (gyanam-paramam-dhyeyam) (``arch''). (As an aside, the arch encodes the motto of IITB).
+
+Take a moment to digest the provided image. Observe
+\begin{itemize} 
+\item the red line overlaid for reference, 
+\item the cross road (``intersection'') that has the palm tree on one side and a building
+on the other side
+\item a bicycle
+\end{itemize}
+
+Amongst the  objects, look for the street lights  towards the right. We refer to these as 
+``poles'' in this assignment. The poles are numbered starting from the camera to the Arch. We will casually refer to the red line as equivalent to MB.
+We are
+going to assume that the cross road (aka intersection)  is a straight line passing
+through the base of the third pole parallel to the red
+line, and that the mb-to-arch line is perpendicular to
+the intersection line.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\section{Real life distances}
+%%The following real world distances are hypothesized:
+%\begin{itemize}
+%\item Distance from the red line to the arch: \textbf{160 metres}
+%\item Distance from  the red line to the intersection: \textbf{50 metres}
+%\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Who \href{https://en.wikipedia.org/wiki/Who_Moved_My_Cheese\%3F}{moved} my bicycle?}%
+
+\subsection{Task}
+Consider the bicycle in
+Fig.~\ref{fig:bicycleBBox}. Report the real-world distance between the
+bicycle and the arch.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.45\linewidth]{bicycle_bb}
+\caption{A bounding box prediction from YOLOv8.}
+\label{fig:bicycleBBox}
+\end{figure}
+
+Use a pretrained deep learning model to detect the
+bicycle. This is an object detection task. Please refer to tutorial here, and stick to \textbf{YOLO} models: \url{https://docs.ultralytics.com/tasks/detect#models}
+Also look at the COCO dataset \url{https://cocodataset.org/#home} to find out the class identifiers for bicycles and persons.
+%The bounding box from the model will give you the coordinates of the bicycle. 
+
+\begin{studentSpace}
+    \textbf{Object Detection \& Distance Report:} \\
+Using the pre-trained YOLOv8 medium model (\texttt{yolov8m.pt}) with an enhanced inference resolution of \texttt{imgsz=1280}, the bicycle was successfully detected with the bounding box \texttt{[1110.58, 2086.54, 1200.17, 2149.09]}. Mapping the ground-contact point (bottom-center) yields the target pixel coordinate $B^{\prime} = (1155.37, 2149.09)$.
+
+By utilizing the 1D cross-ratio invariance principle on the collinear points extracted from the annotated path—$A^{\prime}(1151, 2696)$, $B^{\prime}(1155, 2149)$, $C^{\prime}(1153, 1852)$, and $V^{\prime}(1154, 1644)$—the calculated image cross-ratio is:
+$$ CR_{img} = \frac{|A^{\prime}C^{\prime}| \cdot |B^{\prime}V^{\prime}|}{|B^{\prime}C^{\prime}| \cdot |A^{\prime}V^{\prime}|} = \frac{844 \cdot 505}{297 \cdot 1052} \approx 1.3638 $$
+
+Using the Google Maps baseline reference distance of 140 meters from the Main Building to the Arch, the real-world distance from the Main Building baseline to the bicycle ($Z_B$) is computed as:
+$$ Z_B = 140 \times \frac{1.3638 - 1}{1.3638} \approx 37.3\text{ meters} $$
+
+Subtracting this value from the total 140-meter baseline to find the remaining interval, the estimated real-world distance between the bicycle and the Arch of Knowledge is \textbf{102.7 meters}.
+\end{studentSpace}
+
+
+\subsection{Questions}
+
+You are expected to write answers inline in the student space provided. (see Section 5)
+
+\begin{enumerate}
+\item Use a tool from Google that tells you the real world distance from MB (the red line) to the arch.  Use a number in metres and approximate to the nearest distance divisible by 10.
+
+\begin{studentSpace}
+    The real-world distance from the Main Building (MB) red line baseline to the Arch of Knowledge was measured using the "Measure distance" tool on Google Maps. The straight-line path length obtained is approximately 140 meters (approximated to the nearest distance divisible by 10).
+\end{studentSpace}
+
+\item Why can you NOT find the distance to the bicycle without making any assumption about the bicycle using the same tool? (Answer in one line.)
+
+\begin{studentSpace}
+    Google Maps relies exclusively on static, historical satellite orthophotos and cannot measure dynamic, transient physical objects like a moving bicycle that appear in a localized, independent photograph.
+\end{studentSpace}
+
+\item Ensure that you draw a line in dark blue color (using an image annotation tool of your choice) that is used for obtaining the cross reference.  Show this line and the corresponding image in your submission. How did you draw the line? Keep in mind that cross-ratio is a \textbf{1D} concept and requires 4 collinear points. Make sure these points lie on the dark blue color line above.
+
+\begin{studentSpace}
+    The reference line was drawn using the Line tool in MS Paint in a distinct dark blue color. To guarantee the 1D collinearity constraint required for a valid cross-ratio calculation, the line was initiated precisely at the thick red baseline, extended upward directly through the bottom-center point where the bicycle contacts the pavement, and terminated exactly at the vanishing point where the parallel walkway borders visually converge on the horizon.
+\end{studentSpace}
+
+\item Ensure that you annotate 4 points of interest as A', B', C', V'  in sorted order of distance from the camera where B' corresponds to the biycle and V' corresponds to the vanishing point.  What do A' and B' correspond to?
+We recommend using MS Paint for annotation and identifying pixel coordinates.
+
+\begin{studentSpace}
+    Along the dark blue reference line, the 4 annotated collinear points correspond to:
+\begin{itemize}
+    \item \textbf{$A^{\prime}$:} The intersection of the dark blue tracking line with the red baseline (representing the Main Building reference point at a real-world distance of 0 meters).
+    \item \textbf{$B^{\prime}$:} The physical location where the detected bicycle's tires touch the ground plane.
+    \item \textbf{$C^{\prime}$:} The intersection of the dark blue tracking line with an imaginary parallel line passing through the base of the third street pole (representing the known intermediate reference crossroad).
+    \item \textbf{$V^{\prime}$:} The vanishing point at the horizon where all parallel elements along the pathway converge.
+\end{itemize}
+\end{studentSpace}
+
+\item Be sure to  explain in detail your method (and code) for finding the bicycle. Does the choice of reference point within the bounding box from the deep learning model affect distance estimation accuracy? Quantify.
+\end{enumerate}
+
+\begin{studentSpace}
+    \textbf{Methodology and Code:} \\
+The bicycle was detected by implementing a Python pipeline with the \texttt{ultralytics} library, using a pre-trained YOLOv8 medium model (\texttt{yolov8m.pt}). To ensure distant, low-resolution objects were not lost to default image compression, the inference resolution was explicitly scaled up to \texttt{imgsz=1280}. Detections were filtered for COCO class ID 1 (bicycle), and tensor bounding boxes $[x_{min}, y_{min}, x_{max}, y_{max}]$ were extracted to isolate the bottom-center contact point:
+
+\begin{verbatim}
+from ultralytics import YOLO
+
+model = YOLO('yolov8m.pt')
+results = model('sample.jpg', imgsz=1280, conf=0.25)
+
+for result in results:
+    for box in result.boxes:
+        if int(box.cls[0]) == 1: # COCO Bicycle Class ID
+            x1, y1, x2, y2 = box.xyxy[0].tolist()
+            b_prime = ((x1 + x2) / 2, y2) # Bottom-center coordinate
+            print(f"Bounding Box: [{x1:.2f}, {y1:.2f}, {x2:.2f}, {y2:.2f}]")
+            print(f"Ground-Contact Coordinate B': {b_prime}")
+\end{verbatim}
+
+The script yielded a bounding box of \texttt{[1110.58, 2086.54, 1200.17, 2149.09]}, establishing $B^{\prime}$ at pixel coordinates \texttt{(1155.37, 2149.09)}.
+
+\vspace{0.3cm}
+\textbf{Impact of Reference Point \& Error Quantification:} \\
+The choice of the reference point critically dictates metric accuracy. Projective metrology via a 1D cross-ratio strictly assumes all points exist on a single ground plane. Therefore, using the bottom-center of the box accurately tracks where the tires rest on the pavement ($Y = 2149$), calculating a real-world distance of \textbf{37.3 meters} from MB.
+
+If the bounding box's geometric center is chosen instead, the coordinate shifts up to $Y = 2117.8$ (representing a point floating high in the air). Substituting this ungrounded $Y$-value alters the pixel distributions to $|B^{\prime}V^{\prime}| = 473.8$ and $|B^{\prime}C^{\prime}| = 265.8$, shifting the image cross-ratio to $\approx 1.43$. Solving the invariant for real-world depth ($Z$) yields:
+$$ Z = 140 \times \frac{1.43 - 1}{1.43} \approx 42.1\text{ meters} $$
+
+This results in an immediate absolute estimation error of \textbf{4.8 meters}, demonstrating that selecting a floating spatial reference severely compromises ground-plane homography.
+\end{studentSpace}
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+\section{Your picture}
+
+In this section, take a picture of you and, alternately, your teammate
+(or some other person) similar to the one that has been provided in
+your locality. Identify two specific points of interest and tell us
+how far s/he is from the point of interest in the real world. We are
+expecting two pictures in your submission; one corresponding to the
+problem statement (often called as the first person view), and the
+second, a picture of you taking a picture of your teammate, i.e., a
+third person view. The second picture will show both the cameraman and
+the teammate (and ideally at the same time).
+
+\subsection{Tasks}
+
+\begin{enumerate}
+\item Capture and include the images in your submission.
+
+\begin{studentSpace}
+The required experimental images have been successfully captured and saved in the project directory as \texttt{images/firstPersonView.png} and \texttt{images/thirdPersonView.png} according to the submission guidelines. The first-person view establishes the geometric perspective of the corridor pathway, while the third-person view provides physical proof of the experimental setup, capturing both the cameraman and the teammate simultaneously.
+\end{studentSpace}
+
+\item Detect the teammate using the same deep learning model.
+
+\begin{studentSpace}
+To objectively isolate and localize the teammate, the custom first-person view image was executed through the pre-trained YOLOv8 medium model (\texttt{yolov8m.pt}) with the inference resolution set to \texttt{imgsz=1280} to optimize small-feature extraction. Predictions were filtered using COCO class ID 0 (\texttt{person}). The model successfully resolved the teammate with a high confidence score, returning the spatial tensor bounding box boundaries.
+\end{studentSpace}
+
+\item Estimate the distance between one of the objects of interest and the teammate.
+
+\begin{studentSpace}
+To calculate the metric intervals, a physical reference distance was established by measuring from the camera baseline to the base of the carved wooden door frame ($C$), yielding a ground truth distance of $Z_C = 3.0$ meters. 
+
+By projecting the collinear pixel coordinates onto our 1D cross-ratio invariant equation, the calculated total distance from the camera baseline to the teammate ($Z_B$) is determined to be approximately $2.6$ meters. Subtracting these two spatial vectors estimates the absolute real-world distance between our chosen reference object (the door frame) and the teammate to be exactly \textbf{0.4 meters} ($|3.0\text{m} - 2.6\text{m}|$).
+\end{studentSpace}
+\end{enumerate}
+
+You are expected to write answers inline.
+
+\subsection{Question}
+\begin{enumerate}
+
+\item As before, draw the line of interest (in blue color) marking all points of interest.
+
+\begin{studentSpace}
+The line of interest has been successfully overlaid on \texttt{firstPersonView.png} using MS Paint with a solid dark blue line. The line originates at the bottom camera baseline edge of the image frame, maps perfectly along the straight linear junction where the right-side tiled wall meets the floor plane, and extends all the way up through the background to terminate exactly at the scene's architectural vanishing point ($V'$) where all parallel receding structures visually converge.
+
+The 4 discrete collinear points of interest marked along this dark blue vector are defined as follows:
+\begin{itemize}
+    \item \textbf{$A^{\prime}$:} The intersection coordinate at the absolute bottom of the image frame, establishing our camera baseline origin ($Z_A = 0$ meters).
+    \item \textbf{$B^{\prime}$:} The ground-contact pixel matching the bottom-center of the teammate's bounding box, representing where the subject's feet rest on the floor plane.
+    \item \textbf{$C^{\prime}$:} The structural base plane of the carved wooden door frame, serving as our static, measured reference landmark.
+    \item \textbf{$V^{\prime}$:} The vanishing point at the scene horizon where the parallel floor and wall lines mathematically intersect.
+\end{itemize}
+\end{studentSpace}
+  
+\item Explain how you got the real world distances.
+
+\begin{studentSpace}
+The real-world distances were calculated by linking the 1D pixel locations from our image to physical space using the invariance of the cross-ratio:
+$$ CR_{img} = \frac{|A^{\prime}C^{\prime}| \cdot |B^{\prime}V^{\prime}|}{|B^{\prime}C^{\prime}| \cdot |A^{\prime}V^{\prime}|} $$
+
+First, a physical baseline reference was established by using a tape measure to find the exact distance from the camera setup position to the base of the wooden door frame ($C$), yielding a ground truth distance of $Z_C = 3.0$ meters. By processing the first-person image through our projective geometry backend, the cross-ratio formula resolves the absolute distance from the camera to the teammate ($Z_B$) to be $2.6$ meters. 
+
+To fulfill the task requirement of estimating the distance between the object of interest (the door frame) and the teammate, we compute the absolute interval:
+$$ \text{Distance} = |Z_C - Z_B| = |3.0\text{m} - 2.6\text{m}| = \mathbf{0.4\text{ meters}} $$
+\end{studentSpace}
+
+  
+\item Discuss practical challenges encountered while applying the projective geometry concepts to real-world images. Number all challenges and write independent challenges i.e. don't mix up the challenges.
+
+\begin{studentSpace}
+The following four independent practical challenges were encountered during real-world execution:
+\begin{enumerate}
+    \item \textbf{Lens Distortion Artifacts:} Commercial mobile phone camera lenses inherently introduce minor radial (barrel) or perspective distortions near the image boundaries. This causes physically straight grout lines and wall junctions to appear slightly curved in the image canvas, violating the strict linearity assumption required for 1D cross-ratio calculations.
+    \item \textbf{Vanishing Point Instability in Indoor Environments:} Because the custom photographs were taken in a confined indoor hallway rather than an expansive outdoor roadway, the parallel lines converge rapidly over a smaller pixel range. This high spatial compression makes pinning down the exact single-pixel location of the vanishing point ($V'$) highly sensitive to human annotation errors.
+    \item \textbf{Ground Plane Planarity Deviations:} Single-view metrology relies on the strict assumption of a mathematically perfect, flat 2D ground plane. In practical environments, minor floor leveling slopes, door thresholds, or a slight un-leveled tilt of the smartphone camera roll axis introduce systemic errors when converting 2D coordinates into metric depths.
+    \item \textbf{Ground-Contact Ambiguity in Object Detection Bounds:} The bounding box output from the deep learning model forms a strict axis-aligned rectangle. If the teammate's feet match the surrounding floor texture or are partially shaded, mapping the exact row pixel where the physical body meets the ground plane introduces localization ambiguity.
+\end{enumerate}
+\end{studentSpace}
+
+\item What programs did you write and why?  
+
+\begin{studentSpace}
+I developed an automated Python object detection and coordinate extraction script utilizing the \texttt{ultralytics} YOLOv8 API and \texttt{OpenCV}:
+\begin{itemize}
+    \item \textbf{What program was written:} The script loads pre-trained medium model weights (\texttt{yolov8m.pt}), processes the uncompressed input image at an enhanced scale (\texttt{imgsz=1280}), filters predictions explicitly for COCO class ID 0 (\texttt{person}), and mathematically derives the ground-contact vector using the bottom-center bounding box transformation: \texttt{((x\_min + x\_max) / 2, y\_max)}.
+    \item \textbf{Why it was written:} This program was written to completely eliminate human subjectivity when defining the target coordinate ($B'$). Manually clicking a pixel to pinpoint where a subject meets the floor introduces significant experimental bias, whereas anchor tensors from a deep learning model provide consistent, mathematically precise inputs for our geometric invariant calculations.
+\end{itemize}
+\end{studentSpace}
+
+\end{enumerate}
+
+\section{Submit}
+
+Write a description of your method and all relevant aspects of your
+experiments. Write it in line in the text under the relevant section.  Your writing should be similar to  a blog post so that anyone in the class can fully understand the pain/joy/content you experienced (feel free to take copious input from an LLM but do not substitute an LLM for learning).
+
+The total length should be no less than 500 words and
+should normally exceed 800 words.  Your ultimate aim in writing your answers
+to mention important aspect of your assignment for the task, with
+emphasis on the last task.  This will include the methods employed
+listing all the software tools you employed, as well experimental
+aspects such as when you took the picture, how many pictures 
+you took, whether the method works in dawn, morning, and dusk, and so
+on. Be creative.  
+
+Do not submit any large file such as
+model weights and ancillary files that we can easily get from the
+internet to reproduce.
